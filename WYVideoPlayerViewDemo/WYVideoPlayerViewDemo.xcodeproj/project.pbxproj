@@ -1,0 +1,665 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		041A092B6C3F2B190CE2AD86 /* libPods-WYVideoPlayerViewDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E04B8D527025D9BDC37B3E75 /* libPods-WYVideoPlayerViewDemo.a */; };
+		5907351E1FF389DC00CB3DD6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5907351D1FF389DC00CB3DD6 /* AppDelegate.m */; };
+		590735211FF389DC00CB3DD6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735201FF389DC00CB3DD6 /* ViewController.m */; };
+		590735241FF389DC00CB3DD6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 590735221FF389DC00CB3DD6 /* Main.storyboard */; };
+		590735261FF389DC00CB3DD6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 590735251FF389DC00CB3DD6 /* Assets.xcassets */; };
+		590735291FF389DC00CB3DD6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 590735271FF389DC00CB3DD6 /* LaunchScreen.storyboard */; };
+		5907352C1FF389DC00CB3DD6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5907352B1FF389DC00CB3DD6 /* main.m */; };
+		590735361FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735351FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m */; };
+		590735411FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */; };
+		590735521FF38A3000CB3DD6 /* WYVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */; };
+		590735541FF38E3300CB3DD6 /* WYVideoPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		590735321FF389DC00CB3DD6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 590735111FF389DC00CB3DD6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 590735181FF389DC00CB3DD6;
+			remoteInfo = WYVideoPlayerViewDemo;
+		};
+		5907353D1FF389DD00CB3DD6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 590735111FF389DC00CB3DD6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 590735181FF389DC00CB3DD6;
+			remoteInfo = WYVideoPlayerViewDemo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		590735191FF389DC00CB3DD6 /* WYVideoPlayerViewDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYVideoPlayerViewDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5907351C1FF389DC00CB3DD6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		5907351D1FF389DC00CB3DD6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		5907351F1FF389DC00CB3DD6 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		590735201FF389DC00CB3DD6 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		590735231FF389DC00CB3DD6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		590735251FF389DC00CB3DD6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		590735281FF389DC00CB3DD6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		5907352A1FF389DC00CB3DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5907352B1FF389DC00CB3DD6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		590735311FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WYVideoPlayerViewDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		590735351FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerViewDemoTests.m; sourceTree = "<group>"; };
+		590735371FF389DD00CB3DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5907353C1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WYVideoPlayerViewDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerViewDemoUITests.m; sourceTree = "<group>"; };
+		590735421FF389DD00CB3DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		590735501FF38A3000CB3DD6 /* WYVideoPlayerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYVideoPlayerView.h; sourceTree = "<group>"; };
+		590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerView.m; sourceTree = "<group>"; };
+		590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYVideoPlayer.bundle; sourceTree = "<group>"; };
+		C52009CFCF6354AE6EE71A49 /* Pods-WYVideoPlayerViewDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		D285C00A0E553A8604332657 /* Pods-WYVideoPlayerViewDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.release.xcconfig"; sourceTree = "<group>"; };
+		E04B8D527025D9BDC37B3E75 /* libPods-WYVideoPlayerViewDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WYVideoPlayerViewDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		590735161FF389DC00CB3DD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				041A092B6C3F2B190CE2AD86 /* libPods-WYVideoPlayerViewDemo.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5907352E1FF389DC00CB3DD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590735391FF389DD00CB3DD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		590735101FF389DC00CB3DD6 = {
+			isa = PBXGroup;
+			children = (
+				5907354F1FF38A2300CB3DD6 /* WYVideoPlayerView */,
+				5907351B1FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */,
+				590735341FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests */,
+				5907353F1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests */,
+				5907351A1FF389DC00CB3DD6 /* Products */,
+				F2D1E7F478B0171482E9C403 /* Pods */,
+				FC52C9962A8C135667CDBFF2 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		5907351A1FF389DC00CB3DD6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				590735191FF389DC00CB3DD6 /* WYVideoPlayerViewDemo.app */,
+				590735311FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.xctest */,
+				5907353C1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5907351B1FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */ = {
+			isa = PBXGroup;
+			children = (
+				5907351C1FF389DC00CB3DD6 /* AppDelegate.h */,
+				5907351D1FF389DC00CB3DD6 /* AppDelegate.m */,
+				5907351F1FF389DC00CB3DD6 /* ViewController.h */,
+				590735201FF389DC00CB3DD6 /* ViewController.m */,
+				5907354E1FF389F200CB3DD6 /* Resource */,
+			);
+			path = WYVideoPlayerViewDemo;
+			sourceTree = "<group>";
+		};
+		590735341FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				590735351FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m */,
+				590735371FF389DD00CB3DD6 /* Info.plist */,
+			);
+			path = WYVideoPlayerViewDemoTests;
+			sourceTree = "<group>";
+		};
+		5907353F1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */,
+				590735421FF389DD00CB3DD6 /* Info.plist */,
+			);
+			path = WYVideoPlayerViewDemoUITests;
+			sourceTree = "<group>";
+		};
+		5907354E1FF389F200CB3DD6 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				590735221FF389DC00CB3DD6 /* Main.storyboard */,
+				590735251FF389DC00CB3DD6 /* Assets.xcassets */,
+				590735271FF389DC00CB3DD6 /* LaunchScreen.storyboard */,
+				5907352A1FF389DC00CB3DD6 /* Info.plist */,
+				5907352B1FF389DC00CB3DD6 /* main.m */,
+			);
+			name = Resource;
+			sourceTree = "<group>";
+		};
+		5907354F1FF38A2300CB3DD6 /* WYVideoPlayerView */ = {
+			isa = PBXGroup;
+			children = (
+				590735501FF38A3000CB3DD6 /* WYVideoPlayerView.h */,
+				590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */,
+				590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */,
+			);
+			path = WYVideoPlayerView;
+			sourceTree = "<group>";
+		};
+		F2D1E7F478B0171482E9C403 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C52009CFCF6354AE6EE71A49 /* Pods-WYVideoPlayerViewDemo.debug.xcconfig */,
+				D285C00A0E553A8604332657 /* Pods-WYVideoPlayerViewDemo.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		FC52C9962A8C135667CDBFF2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E04B8D527025D9BDC37B3E75 /* libPods-WYVideoPlayerViewDemo.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		590735181FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 590735451FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemo" */;
+			buildPhases = (
+				3DF922CB9CC4C89B8F33E50D /* [CP] Check Pods Manifest.lock */,
+				590735151FF389DC00CB3DD6 /* Sources */,
+				590735161FF389DC00CB3DD6 /* Frameworks */,
+				590735171FF389DC00CB3DD6 /* Resources */,
+				54787DBC663E707BD5FDC405 /* [CP] Embed Pods Frameworks */,
+				6920CE08E459245F2FC5D93F /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WYVideoPlayerViewDemo;
+			productName = WYVideoPlayerViewDemo;
+			productReference = 590735191FF389DC00CB3DD6 /* WYVideoPlayerViewDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		590735301FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 590735481FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemoTests" */;
+			buildPhases = (
+				5907352D1FF389DC00CB3DD6 /* Sources */,
+				5907352E1FF389DC00CB3DD6 /* Frameworks */,
+				5907352F1FF389DC00CB3DD6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				590735331FF389DC00CB3DD6 /* PBXTargetDependency */,
+			);
+			name = WYVideoPlayerViewDemoTests;
+			productName = WYVideoPlayerViewDemoTests;
+			productReference = 590735311FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5907353B1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5907354B1FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemoUITests" */;
+			buildPhases = (
+				590735381FF389DD00CB3DD6 /* Sources */,
+				590735391FF389DD00CB3DD6 /* Frameworks */,
+				5907353A1FF389DD00CB3DD6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5907353E1FF389DD00CB3DD6 /* PBXTargetDependency */,
+			);
+			name = WYVideoPlayerViewDemoUITests;
+			productName = WYVideoPlayerViewDemoUITests;
+			productReference = 5907353C1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		590735111FF389DC00CB3DD6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = YANGGL;
+				TargetAttributes = {
+					590735181FF389DC00CB3DD6 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Manual;
+					};
+					590735301FF389DC00CB3DD6 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 590735181FF389DC00CB3DD6;
+					};
+					5907353B1FF389DD00CB3DD6 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 590735181FF389DC00CB3DD6;
+					};
+				};
+			};
+			buildConfigurationList = 590735141FF389DC00CB3DD6 /* Build configuration list for PBXProject "WYVideoPlayerViewDemo" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 590735101FF389DC00CB3DD6;
+			productRefGroup = 5907351A1FF389DC00CB3DD6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				590735181FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */,
+				590735301FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests */,
+				5907353B1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		590735171FF389DC00CB3DD6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590735541FF38E3300CB3DD6 /* WYVideoPlayer.bundle in Resources */,
+				590735291FF389DC00CB3DD6 /* LaunchScreen.storyboard in Resources */,
+				590735261FF389DC00CB3DD6 /* Assets.xcassets in Resources */,
+				590735241FF389DC00CB3DD6 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5907352F1FF389DC00CB3DD6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5907353A1FF389DD00CB3DD6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3DF922CB9CC4C89B8F33E50D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WYVideoPlayerViewDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		54787DBC663E707BD5FDC405 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6920CE08E459245F2FC5D93F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		590735151FF389DC00CB3DD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590735211FF389DC00CB3DD6 /* ViewController.m in Sources */,
+				590735521FF38A3000CB3DD6 /* WYVideoPlayerView.m in Sources */,
+				5907352C1FF389DC00CB3DD6 /* main.m in Sources */,
+				5907351E1FF389DC00CB3DD6 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5907352D1FF389DC00CB3DD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590735361FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590735381FF389DD00CB3DD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				590735411FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		590735331FF389DC00CB3DD6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 590735181FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */;
+			targetProxy = 590735321FF389DC00CB3DD6 /* PBXContainerItemProxy */;
+		};
+		5907353E1FF389DD00CB3DD6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 590735181FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */;
+			targetProxy = 5907353D1FF389DD00CB3DD6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		590735221FF389DC00CB3DD6 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				590735231FF389DC00CB3DD6 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		590735271FF389DC00CB3DD6 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				590735281FF389DC00CB3DD6 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		590735431FF389DD00CB3DD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		590735441FF389DD00CB3DD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		590735461FF389DD00CB3DD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C52009CFCF6354AE6EE71A49 /* Pods-WYVideoPlayerViewDemo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = WYVideoPlayerViewDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		590735471FF389DD00CB3DD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D285C00A0E553A8604332657 /* Pods-WYVideoPlayerViewDemo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = WYVideoPlayerViewDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		590735491FF389DD00CB3DD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K582H7969A;
+				INFOPLIST_FILE = WYVideoPlayerViewDemoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WYVideoPlayerViewDemo.app/WYVideoPlayerViewDemo";
+			};
+			name = Debug;
+		};
+		5907354A1FF389DD00CB3DD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K582H7969A;
+				INFOPLIST_FILE = WYVideoPlayerViewDemoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WYVideoPlayerViewDemo.app/WYVideoPlayerViewDemo";
+			};
+			name = Release;
+		};
+		5907354C1FF389DD00CB3DD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K582H7969A;
+				INFOPLIST_FILE = WYVideoPlayerViewDemoUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = WYVideoPlayerViewDemo;
+			};
+			name = Debug;
+		};
+		5907354D1FF389DD00CB3DD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K582H7969A;
+				INFOPLIST_FILE = WYVideoPlayerViewDemoUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vnetoo.examvediomanager.WYVideoPlayerViewDemoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = WYVideoPlayerViewDemo;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		590735141FF389DC00CB3DD6 /* Build configuration list for PBXProject "WYVideoPlayerViewDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590735431FF389DD00CB3DD6 /* Debug */,
+				590735441FF389DD00CB3DD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		590735451FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590735461FF389DD00CB3DD6 /* Debug */,
+				590735471FF389DD00CB3DD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		590735481FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590735491FF389DD00CB3DD6 /* Debug */,
+				5907354A1FF389DD00CB3DD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5907354B1FF389DD00CB3DD6 /* Build configuration list for PBXNativeTarget "WYVideoPlayerViewDemoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5907354C1FF389DD00CB3DD6 /* Debug */,
+				5907354D1FF389DD00CB3DD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 590735111FF389DC00CB3DD6 /* Project object */;
+}
