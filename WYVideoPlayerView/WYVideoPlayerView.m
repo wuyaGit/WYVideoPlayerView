@@ -22,6 +22,8 @@
 
 @interface WYVideoPlayerView ()
 
+@property (nonatomic, strong) WYVideoItem *videoItem;
+
 @property (nonatomic, strong) AVPlayer *player;                 //控制器
 @property (nonatomic, strong) AVPlayerItem *playerItem;       //模型
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;     //视图
@@ -46,8 +48,12 @@
 @property (nonatomic, strong) UIProgressView *faseProgressView;             //快进/倒退进度条
 @property (nonatomic, strong) UISlider *videoProgressSlider;                        //播放进度条
 
+@property (nonatomic, strong) UIActivityIndicatorView *activityView;
+
 @property (nonatomic, strong) id playTimeObserver;
 
+@property (nonatomic, getter=isDragged, assign) BOOL dragged; //是否正在拖动
+@property (nonatomic, getter=isFullScreen, assign) BOOL fullScreen; //是否是横屏
 
 @end
 
@@ -75,7 +81,6 @@
         [self setupView];
         [self setupAVPlayer];
         [self setupConstraints];
-        [self resetControlData];
     }
     
     return self;
@@ -140,6 +145,9 @@
     
     //setup lock button
     [self addSubview:self.lockButton];
+    
+    //setup activity view
+    [self addSubview:self.activityView];
 }
 
 - (void)setupAVPlayer {
@@ -234,6 +242,12 @@
         make.centerY.equalTo(self.mas_centerY);
         make.width.height.mas_equalTo(32);
     }];
+    
+    [self.activityView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(self.mas_centerX);
+        make.centerY.equalTo(self.mas_centerY);
+        make.width.height.mas_equalTo(50);
+    }];
 }
 
 #pragma mark - Setup init data(重置数据)
@@ -241,20 +255,26 @@
 // 重置数据
 - (void)resetControlData {
     
+    if (self.videoItem.videoURL) {
+        self.playerItem = [AVPlayerItem playerItemWithURL:_videoItem.videoURL];
+        //重置播放模型
+        [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
+    }
+    
     self.titleLabel.text = @"标题";
     self.loadedProgressView.progress = 0;
     self.videoProgressSlider.value = 0;
     self.currentTimeLabel.text = @"00:00";
     self.totalTimeLabel.text = @"00:00";
     
-//    if (self.playTimeObserver) {
-//        [self.player removeTimeObserver:self.playTimeObserver];
-//        self.playTimeObserver = nil;
-//    }
-    
     //播放进度监听
     [self monitoringPlayback];
     
+    if ([self.videoItem.videoURL.scheme isEqualToString:@"file"]) {
+        self.playerStatus = WYPlayerStatusPlaying;
+    }else {
+        self.playerStatus = WYPlayerStatusBuffering;
+    }
     
 }
 
@@ -309,11 +329,13 @@
 #pragma mark - NSNotificationCenter Actions
 
 - (void)appEnterForegroundNotification {
-    
+    [self play];
+    self.playerStatus = WYPlayerStatusPlaying;
 }
 
 - (void)appEnterBackgroundNotification {
-    
+    [self.player pause];
+    self.playerStatus = WYPlayerStatusPause;
 }
 
 - (void)onDeviceOrientationChange {
@@ -321,7 +343,7 @@
 }
 
 - (void)videoPlayToEndTimeNotification:(NSNotification *)notification {
-    
+    self.playerStatus = WYPlayerStatusStopped;
 }
 
 #pragma mark - KVO
@@ -330,19 +352,23 @@
     if (object == self.playerItem) {
         if ([keyPath isEqualToString:@"status"]) {
             if (self.playerItem.status == AVPlayerItemStatusReadyToPlay) {
-                
-                [self.player play];
+                [self play];
             }else if (self.playerItem.status == AVPlayerItemStatusFailed) {
-                NSLog(@"AVPlayerItemStatusFailed");
+                self.playerStatus = WYPlayerStatusFailed;
             }
             
         }else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
             [self updateLoadedTimeRanges];
             
         }else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
-            
+            if (self.playerItem.playbackBufferEmpty) {
+                self.playerStatus = WYPlayerStatusBuffering;
+            }
         }else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
-            
+            //缓冲完成
+            if (self.playerItem.playbackLikelyToKeepUp && self.playerStatus == WYPlayerStatusBuffering) {
+                self.playerStatus = WYPlayerStatusPlaying;
+            }
         }
     }
 }
@@ -350,15 +376,10 @@
 #pragma mark - Public Methods
 
 - (void)playerVideoItem:(WYVideoItem *)videoItem {
+    self.videoItem = videoItem;
     
-    if (videoItem.videoURL) {
-        self.playerItem = [AVPlayerItem playerItemWithURL:videoItem.videoURL];
-        //重置播放模型
-        [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
-    }
-    
+    [self resetControlData];
 }
-
 
 - (void)autoPlayVideo {
     
@@ -369,11 +390,17 @@
 }
 
 - (void)pause {
+    self.playButton.selected = NO;
+    self.playerStatus = WYPlayerStatusPause;
     
+    [self.player pause];
 }
 
 - (void)play {
+    self.playButton.selected = YES;
+    self.playerStatus = WYPlayerStatusPlaying;
     
+    [self.player play];
 }
 
 #pragma mark - Private Methods
@@ -388,15 +415,35 @@
     NSInteger durMin = totalTime / 60;//总秒
     NSInteger durSec = totalTime % 60;//总分钟
 
-    //
-    self.currentTimeLabel.text = [NSString stringWithFormat:@"%02zd:%02zd", proMin, proSec];
-    
+    //在拖动的时候，不更新播放进度
+    if (!self.isDragged) {
+        self.currentTimeLabel.text = [NSString stringWithFormat:@"%02zd:%02zd", proMin, proSec];
+        self.videoProgressSlider.value = value;
+    }
     //
     self.totalTimeLabel.text = [NSString stringWithFormat:@"%02zd:%02zd", durMin, durSec];
+}
+
+//更新拖拽进度
+- (void)updateDraggedTime:(NSInteger)draggedTime totalTime:(NSInteger)totalTime isForward:(BOOL)forawrd {
+    //当前播放时长
+    NSInteger proMin = draggedTime / 60;//当前秒
+    NSInteger proSec = draggedTime % 60;//当前分钟
+    
+    //总时长
+    NSInteger durMin = totalTime / 60;//总秒
+    NSInteger durSec = totalTime % 60;//总分钟
+    
+    NSString *currTime = [NSString stringWithFormat:@"%02zd:%02zd", proMin, proSec];
+    NSString *totlTime = [NSString stringWithFormat:@"%02zd:%02zd", durMin, durSec];
+    NSString *percentage = [NSString stringWithFormat:@"%@ / %@", currTime, totlTime];
     
     //
-    self.videoProgressSlider.value = value;
+    self.currentTimeLabel.text = currTime;
+    self.videoProgressSlider.value = draggedTime / (totalTime * 1.0);
 
+    //显示快进多少/倒退多少
+    
 }
 
 //更新缓冲进度
@@ -413,6 +460,102 @@
     self.loadedProgressView.progress = timeInterval / totalDuration;
 }
 
+//调整到多少秒播放
+- (void)seekToTime:(NSInteger)seconds completionHandler:(void (^)(BOOL))completionHandler {
+    if (self.playerItem.status == AVPlayerItemStatusReadyToPlay) {
+        //
+        [self.activityView startAnimating];
+        [self.player pause];
+        CMTime time = CMTimeMake(seconds, 1);
+        
+        __weak typeof(self) weakSelf = self;
+        [self.player seekToTime:time toleranceBefore:time toleranceAfter:CMTimeMake(1, 1) completionHandler:^(BOOL finished) {
+            [weakSelf.activityView stopAnimating];
+            [weakSelf.player play];
+            
+            if (completionHandler) {
+                completionHandler(finished);
+            }
+        }];
+        
+    }
+}
+
+#pragma mark - 转屏
+
+- (void)interfaceorientation:(UIInterfaceOrientation)interfaceOrientation {
+    if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+        interfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+        [self setupOrientationLandscapeConstraints:interfaceOrientation];
+    }else if (interfaceOrientation == UIInterfaceOrientationPortrait){
+        [self setupOrientationPortraitConstraints:interfaceOrientation];
+    }
+}
+
+- (void)setupOrientationLandscapeConstraints:(UIInterfaceOrientation)orientation {
+    [self toOrientation:orientation];
+}
+
+- (void)setupOrientationPortraitConstraints:(UIInterfaceOrientation)orientation {
+    [self toOrientation:orientation];
+}
+
+- (void)toOrientation:(UIInterfaceOrientation)orientation {
+    UIInterfaceOrientation currOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    if (orientation == currOrientation) {
+        return;
+    }
+    
+    if (orientation != UIInterfaceOrientationPortrait) {
+        if (currOrientation == UIInterfaceOrientationPortrait) {
+            
+            [self removeFromSuperview];
+            [[UIApplication sharedApplication].keyWindow addSubview:self];
+            
+            [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.width.mas_equalTo([[UIScreen mainScreen] bounds].size.height);
+                make.height.mas_equalTo([[UIScreen mainScreen] bounds].size.width);
+                make.center.equalTo([UIApplication sharedApplication].keyWindow);
+            }];
+            
+        }
+    }
+    
+    [[UIApplication sharedApplication] setStatusBarOrientation:orientation animated:NO];
+
+    // 获取旋转状态条需要的时间:
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDuration:0.3];
+    // 更改了状态条的方向,但是设备方向UIInterfaceOrientation还是正方向的,这就要设置给你播放视频的视图的方向设置旋转
+    // 给你的播放视频的view视图设置旋转
+    self.transform = CGAffineTransformIdentity;
+//    if (!self.forcePortrait) {
+        self.transform = [self getTransformRotationAngle];
+//    }
+    // 开始旋转
+    [UIView commitAnimations];
+}
+
+/**
+ * 获取变换的旋转角度
+ *
+ * @return 角度
+ */
+- (CGAffineTransform)getTransformRotationAngle {
+    // 状态条的方向已经设置过,所以这个就是你想要旋转的方向
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    // 根据要进行旋转的方向来计算旋转的角度
+//    if (orientation == UIInterfaceOrientationPortrait) {
+//        return CGAffineTransformIdentity;
+//    } else if (orientation == UIInterfaceOrientationLandscapeLeft){
+        return CGAffineTransformMakeRotation(-M_PI_2);
+//    } else if(orientation == UIInterfaceOrientationLandscapeRight){
+//        return CGAffineTransformMakeRotation(M_PI_2);
+//    }
+    return CGAffineTransformIdentity;
+}
+
 #pragma mark - Touch Methods
 
 - (void)onTouchGobackAction:(id)sender {
@@ -424,14 +567,78 @@
 }
 
 - (void)onTouchPlayVideoAction:(id)sender {
+    UIButton *button = sender;
+    button.selected = !button.selected;
     
+    //playButton == YES: 用户正在播放
+    if (button.selected) {
+        [self play];
+    }else {
+        [self pause];
+    }
+}
+
+- (void)onTouchFullScreenAction:(id)sender {
+    UIButton *button = sender;
+    button.selected = !button.selected;
+
+    if (self.isFullScreen) {
+        [self interfaceorientation:UIInterfaceOrientationPortrait];
+        self.fullScreen = NO;
+    }else {
+        UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+        if (orientation == UIDeviceOrientationLandscapeRight) {
+            [self interfaceorientation:UIInterfaceOrientationLandscapeLeft];
+        }else {
+            [self interfaceorientation:UIInterfaceOrientationLandscapeRight];
+        }
+        self.fullScreen = YES;
+    }
 }
 
 - (void)onTouchCloseVideoAction:(id)sender {
     
 }
 
+- (void)onTouchSliderBegan:(id)sender {
+    self.dragged = YES;
+}
+
+- (void)onTouchSliderValueChanged:(id)sender {
+    if (self.playerItem.status == AVPlayerItemStatusReadyToPlay) {
+        UISlider *slider = sender;
+        
+        CGFloat totalTime = (CGFloat)self.playerItem.duration.value / self.playerItem.duration.timescale;
+        CGFloat seconds = floor(totalTime * slider.value);
+
+        [self updateDraggedTime:seconds totalTime:totalTime isForward:NO];
+    }
+}
+
+- (void)onTouchSliderEnd:(id)sender {
+    self.dragged = NO;
+    if (self.playerItem.status == AVPlayerItemStatusReadyToPlay) {
+        UISlider *slider = sender;
+        
+        CGFloat totalTime = (CGFloat)self.playerItem.duration.value / self.playerItem.duration.timescale;
+        CGFloat seconds = floor(totalTime * slider.value);
+        [self seekToTime:seconds completionHandler:nil];
+    }
+}
+
 #pragma mark - Setter
+
+- (void)setPlayerStatus:(WYPlayerStatus)playerStatus {
+    _playerStatus = playerStatus;
+    
+    if (playerStatus == WYPlayerStatusBuffering) {
+        [self.activityView startAnimating];
+    }else {
+        [self.activityView stopAnimating];
+    }
+    
+    
+}
 
 - (void)setPlayerItem:(AVPlayerItem *)playerItem {
     if (_playerItem == playerItem) {
@@ -472,6 +679,7 @@
     if (_topView == nil) {
         _topView = [[UIImageView alloc] init];
         _topView.image =  WYPlayerBundleImageNamed(@"WYPlayer_top_shadow");
+        _topView.userInteractionEnabled = YES;
     }
     return _topView;
 }
@@ -480,6 +688,7 @@
     if (_bottomView == nil) {
         _bottomView = [[UIImageView alloc] init];
         _bottomView.image = WYPlayerBundleImageNamed(@"WYPlayer_bottom_shadow");
+        _bottomView.userInteractionEnabled = YES;
     }
     return _bottomView;
 }
@@ -537,7 +746,7 @@
         _fullScreenButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [_fullScreenButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_fullscreen") forState:UIControlStateNormal];
         [_fullScreenButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_shrinkscreen") forState:UIControlStateSelected];
-        [_fullScreenButton addTarget:self action:@selector(onTouchCloseVideoAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_fullScreenButton addTarget:self action:@selector(onTouchFullScreenAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _fullScreenButton;
 }
@@ -585,11 +794,22 @@
         _videoProgressSlider = [[UISlider alloc] init];
         _videoProgressSlider.minimumTrackTintColor = [UIColor whiteColor];
         _videoProgressSlider.maximumTrackTintColor = [UIColor clearColor];
-        _videoProgressSlider.currentThumbImage = WYPlayerBundleImageNamed(@"WYPlayer_slider");
+        
+        [_videoProgressSlider setThumbImage:WYPlayerBundleImageNamed(@"WYPlayer_slider") forState:UIControlStateNormal];
+        
+        [_videoProgressSlider addTarget:self action:@selector(onTouchSliderBegan:) forControlEvents:UIControlEventTouchDown];
+        [_videoProgressSlider addTarget:self action:@selector(onTouchSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+        [_videoProgressSlider addTarget:self action:@selector(onTouchSliderEnd:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
     }
     return _videoProgressSlider;
 }
 
+- (UIActivityIndicatorView *)activityView {
+    if (_activityView == nil) {
+        _activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    }
+    return _activityView;
+}
 
 
 @end

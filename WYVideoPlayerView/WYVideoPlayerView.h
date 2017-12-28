@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSInteger, WYPlayerStatus) {
+    WYPlayerStatusFailed        = 0,        //播放失败
+    WYPlayerStatusBuffering,                //缓冲中
+    WYPlayerStatusPlaying,                  //播放中
+    WYPlayerStatusStopped,                  //停止播放
+    WYPlayerStatusPause                     //暂停播放
+};
 /**
  * 播放模型
  */
@@ -22,6 +29,8 @@
  * 播放器
  */
 @interface WYVideoPlayerView : UIView
+
+@property (nonatomic, readonly, assign) WYPlayerStatus playerStatus;
 
 - (void)playerVideoItem:(WYVideoItem *)videoItem;
 
