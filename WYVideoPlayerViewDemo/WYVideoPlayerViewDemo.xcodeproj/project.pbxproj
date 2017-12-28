@@ -16,8 +16,8 @@
 		5907352C1FF389DC00CB3DD6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5907352B1FF389DC00CB3DD6 /* main.m */; };
 		590735361FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735351FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests.m */; };
 		590735411FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */; };
-		590735521FF38A3000CB3DD6 /* WYVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */; };
-		590735541FF38E3300CB3DD6 /* WYVideoPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */; };
+		5969B8411FF481C800453A6A /* WYVideoPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */; };
+		5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5969B8401FF481C800453A6A /* WYVideoPlayerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,9 +54,9 @@
 		5907353C1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WYVideoPlayerViewDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerViewDemoUITests.m; sourceTree = "<group>"; };
 		590735421FF389DD00CB3DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		590735501FF38A3000CB3DD6 /* WYVideoPlayerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYVideoPlayerView.h; sourceTree = "<group>"; };
-		590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerView.m; sourceTree = "<group>"; };
-		590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYVideoPlayer.bundle; sourceTree = "<group>"; };
+		5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYVideoPlayer.bundle; sourceTree = "<group>"; };
+		5969B83F1FF481C800453A6A /* WYVideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WYVideoPlayerView.h; sourceTree = "<group>"; };
+		5969B8401FF481C800453A6A /* WYVideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerView.m; sourceTree = "<group>"; };
 		C52009CFCF6354AE6EE71A49 /* Pods-WYVideoPlayerViewDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		D285C00A0E553A8604332657 /* Pods-WYVideoPlayerViewDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.release.xcconfig"; sourceTree = "<group>"; };
 		E04B8D527025D9BDC37B3E75 /* libPods-WYVideoPlayerViewDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WYVideoPlayerViewDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -91,7 +91,7 @@
 		590735101FF389DC00CB3DD6 = {
 			isa = PBXGroup;
 			children = (
-				5907354F1FF38A2300CB3DD6 /* WYVideoPlayerView */,
+				5969B83D1FF481C800453A6A /* WYVideoPlayerView */,
 				5907351B1FF389DC00CB3DD6 /* WYVideoPlayerViewDemo */,
 				590735341FF389DC00CB3DD6 /* WYVideoPlayerViewDemoTests */,
 				5907353F1FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests */,
@@ -153,14 +153,15 @@
 			name = Resource;
 			sourceTree = "<group>";
 		};
-		5907354F1FF38A2300CB3DD6 /* WYVideoPlayerView */ = {
+		5969B83D1FF481C800453A6A /* WYVideoPlayerView */ = {
 			isa = PBXGroup;
 			children = (
-				590735501FF38A3000CB3DD6 /* WYVideoPlayerView.h */,
-				590735511FF38A3000CB3DD6 /* WYVideoPlayerView.m */,
-				590735531FF38E3300CB3DD6 /* WYVideoPlayer.bundle */,
+				5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */,
+				5969B83F1FF481C800453A6A /* WYVideoPlayerView.h */,
+				5969B8401FF481C800453A6A /* WYVideoPlayerView.m */,
 			);
-			path = WYVideoPlayerView;
+			name = WYVideoPlayerView;
+			path = ../WYVideoPlayerView;
 			sourceTree = "<group>";
 		};
 		F2D1E7F478B0171482E9C403 /* Pods */ = {
@@ -289,7 +290,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				590735541FF38E3300CB3DD6 /* WYVideoPlayer.bundle in Resources */,
+				5969B8411FF481C800453A6A /* WYVideoPlayer.bundle in Resources */,
 				590735291FF389DC00CB3DD6 /* LaunchScreen.storyboard in Resources */,
 				590735261FF389DC00CB3DD6 /* Assets.xcassets in Resources */,
 				590735241FF389DC00CB3DD6 /* Main.storyboard in Resources */,
@@ -369,7 +370,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				590735211FF389DC00CB3DD6 /* ViewController.m in Sources */,
-				590735521FF38A3000CB3DD6 /* WYVideoPlayerView.m in Sources */,
+				5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */,
 				5907352C1FF389DC00CB3DD6 /* main.m in Sources */,
 				5907351E1FF389DC00CB3DD6 /* AppDelegate.m in Sources */,
 			);
@@ -474,7 +475,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -523,7 +524,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
