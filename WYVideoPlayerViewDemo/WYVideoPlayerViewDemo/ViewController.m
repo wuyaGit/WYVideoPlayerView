@@ -12,7 +12,8 @@
 
 @interface ViewController ()
 
-@property (nonatomic, strong) WYVideoPlayerView *playerView;
+@property (nonatomic, strong) UIView *videoPlayerView;          //播放器容器
+@property (nonatomic, strong) WYVideoPlayerView *playerView;    //播放器视图
 @end
 
 @implementation ViewController
@@ -21,17 +22,18 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    [self.view addSubview:self.playerView];
-    
-    [self.playerView mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.view addSubview:self.videoPlayerView];
+
+    [self.videoPlayerView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.view).offset(0);
         make.left.right.equalTo(self.view);
-        make.height.equalTo(self.playerView.mas_width).multipliedBy(9.0/16.0);
+        make.height.equalTo(self.videoPlayerView.mas_width).multipliedBy(9.0/16.0);
     }];
 
     WYVideoItem *item = [[WYVideoItem alloc] init];
     item.title = @"big_buck_bunny";
     item.videoURL = [NSURL URLWithString:@"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"];
+    item.fatherView = self.videoPlayerView;
     
     [self.playerView playerVideoItem:item];
 }
@@ -42,6 +44,12 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (UIView *)videoPlayerView {
+    if (_videoPlayerView == nil) {
+        _videoPlayerView = [[UIView alloc] init];
+    }
+    return _videoPlayerView;
+}
 
 - (WYVideoPlayerView *)playerView {
     if (_playerView == nil) {
@@ -49,6 +57,11 @@
     }
     
     return _playerView;
+}
+
+// 返回值要必须为NO
+- (BOOL)shouldAutorotate {
+    return NO;
 }
 
 @end

@@ -22,9 +22,12 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, strong) NSURL *videoURL;
+@property (nonatomic, strong) UIView *fatherView; //父视图
+@property (nonatomic, assign) BOOL autoPlay; //自动播放
 
 @end
 
+// 
 /**
  * 播放器
  */
@@ -33,8 +36,6 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 @property (nonatomic, readonly, assign) WYPlayerStatus playerStatus;
 
 - (void)playerVideoItem:(WYVideoItem *)videoItem;
-
-- (void)autoPlayVideo;
 
 //重置播放器
 - (void)resetPlayer;
