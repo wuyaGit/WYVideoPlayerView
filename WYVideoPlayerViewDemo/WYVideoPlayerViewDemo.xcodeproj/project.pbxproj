@@ -18,6 +18,12 @@
 		590735411FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */; };
 		5969B8411FF481C800453A6A /* WYVideoPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */; };
 		5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5969B8401FF481C800453A6A /* WYVideoPlayerView.m */; };
+		85D101F01FF7BE9A00A7A231 /* VideoListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101EF1FF7BE9A00A7A231 /* VideoListViewController.m */; };
+		85D101F61FF7C1D600A7A231 /* VideoList1ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101F51FF7C1D600A7A231 /* VideoList1ViewController.m */; };
+		85D101F91FF7C1E800A7A231 /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101F81FF7C1E800A7A231 /* VideoPlayerViewController.m */; };
+		85D101FC1FF7C1FE00A7A231 /* VideoList2ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101FB1FF7C1FE00A7A231 /* VideoList2ViewController.m */; };
+		85D101FF1FF7C20D00A7A231 /* VideoList3ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101FE1FF7C20D00A7A231 /* VideoList3ViewController.m */; };
+		85D102021FF7E74600A7A231 /* VideoListCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D102011FF7E74600A7A231 /* VideoListCellModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +63,18 @@
 		5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYVideoPlayer.bundle; sourceTree = "<group>"; };
 		5969B83F1FF481C800453A6A /* WYVideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WYVideoPlayerView.h; sourceTree = "<group>"; };
 		5969B8401FF481C800453A6A /* WYVideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerView.m; sourceTree = "<group>"; };
+		85D101EE1FF7BE9A00A7A231 /* VideoListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListViewController.h; sourceTree = "<group>"; };
+		85D101EF1FF7BE9A00A7A231 /* VideoListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListViewController.m; sourceTree = "<group>"; };
+		85D101F41FF7C1D600A7A231 /* VideoList1ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoList1ViewController.h; sourceTree = "<group>"; };
+		85D101F51FF7C1D600A7A231 /* VideoList1ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoList1ViewController.m; sourceTree = "<group>"; };
+		85D101F71FF7C1E800A7A231 /* VideoPlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPlayerViewController.h; sourceTree = "<group>"; };
+		85D101F81FF7C1E800A7A231 /* VideoPlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerViewController.m; sourceTree = "<group>"; };
+		85D101FA1FF7C1FE00A7A231 /* VideoList2ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoList2ViewController.h; sourceTree = "<group>"; };
+		85D101FB1FF7C1FE00A7A231 /* VideoList2ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoList2ViewController.m; sourceTree = "<group>"; };
+		85D101FD1FF7C20D00A7A231 /* VideoList3ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoList3ViewController.h; sourceTree = "<group>"; };
+		85D101FE1FF7C20D00A7A231 /* VideoList3ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoList3ViewController.m; sourceTree = "<group>"; };
+		85D102001FF7E74600A7A231 /* VideoListCellModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListCellModel.h; sourceTree = "<group>"; };
+		85D102011FF7E74600A7A231 /* VideoListCellModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListCellModel.m; sourceTree = "<group>"; };
 		C52009CFCF6354AE6EE71A49 /* Pods-WYVideoPlayerViewDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		D285C00A0E553A8604332657 /* Pods-WYVideoPlayerViewDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYVideoPlayerViewDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-WYVideoPlayerViewDemo/Pods-WYVideoPlayerViewDemo.release.xcconfig"; sourceTree = "<group>"; };
 		E04B8D527025D9BDC37B3E75 /* libPods-WYVideoPlayerViewDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WYVideoPlayerViewDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +134,11 @@
 			children = (
 				5907351C1FF389DC00CB3DD6 /* AppDelegate.h */,
 				5907351D1FF389DC00CB3DD6 /* AppDelegate.m */,
+				85D101EE1FF7BE9A00A7A231 /* VideoListViewController.h */,
+				85D101EF1FF7BE9A00A7A231 /* VideoListViewController.m */,
+				85D101F11FF7C16400A7A231 /* VideoList1 */,
+				85D101F21FF7C17200A7A231 /* VideoList2 */,
+				85D101F31FF7C17A00A7A231 /* VideoList3 */,
 				5907351F1FF389DC00CB3DD6 /* ViewController.h */,
 				590735201FF389DC00CB3DD6 /* ViewController.m */,
 				5907354E1FF389F200CB3DD6 /* Resource */,
@@ -162,6 +185,37 @@
 			);
 			name = WYVideoPlayerView;
 			path = ../WYVideoPlayerView;
+			sourceTree = "<group>";
+		};
+		85D101F11FF7C16400A7A231 /* VideoList1 */ = {
+			isa = PBXGroup;
+			children = (
+				85D101F41FF7C1D600A7A231 /* VideoList1ViewController.h */,
+				85D101F51FF7C1D600A7A231 /* VideoList1ViewController.m */,
+				85D101F71FF7C1E800A7A231 /* VideoPlayerViewController.h */,
+				85D101F81FF7C1E800A7A231 /* VideoPlayerViewController.m */,
+			);
+			name = VideoList1;
+			sourceTree = "<group>";
+		};
+		85D101F21FF7C17200A7A231 /* VideoList2 */ = {
+			isa = PBXGroup;
+			children = (
+				85D102001FF7E74600A7A231 /* VideoListCellModel.h */,
+				85D102011FF7E74600A7A231 /* VideoListCellModel.m */,
+				85D101FA1FF7C1FE00A7A231 /* VideoList2ViewController.h */,
+				85D101FB1FF7C1FE00A7A231 /* VideoList2ViewController.m */,
+			);
+			name = VideoList2;
+			sourceTree = "<group>";
+		};
+		85D101F31FF7C17A00A7A231 /* VideoList3 */ = {
+			isa = PBXGroup;
+			children = (
+				85D101FD1FF7C20D00A7A231 /* VideoList3ViewController.h */,
+				85D101FE1FF7C20D00A7A231 /* VideoList3ViewController.m */,
+			);
+			name = VideoList3;
 			sourceTree = "<group>";
 		};
 		F2D1E7F478B0171482E9C403 /* Pods */ = {
@@ -329,7 +383,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		54787DBC663E707BD5FDC405 /* [CP] Embed Pods Frameworks */ = {
@@ -369,10 +423,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85D101F91FF7C1E800A7A231 /* VideoPlayerViewController.m in Sources */,
+				85D101FC1FF7C1FE00A7A231 /* VideoList2ViewController.m in Sources */,
+				85D101F01FF7BE9A00A7A231 /* VideoListViewController.m in Sources */,
+				85D102021FF7E74600A7A231 /* VideoListCellModel.m in Sources */,
 				590735211FF389DC00CB3DD6 /* ViewController.m in Sources */,
 				5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */,
 				5907352C1FF389DC00CB3DD6 /* main.m in Sources */,
+				85D101F61FF7C1D600A7A231 /* VideoList1ViewController.m in Sources */,
 				5907351E1FF389DC00CB3DD6 /* AppDelegate.m in Sources */,
+				85D101FF1FF7C20D00A7A231 /* VideoList3ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

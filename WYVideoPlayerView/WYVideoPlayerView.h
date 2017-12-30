@@ -8,13 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, WYPlayerStatus) {
-    WYPlayerStatusFailed        = 0,        //播放失败
-    WYPlayerStatusBuffering,                //缓冲中
-    WYPlayerStatusPlaying,                  //播放中
-    WYPlayerStatusStopped,                  //停止播放
-    WYPlayerStatusPause                     //暂停播放
+typedef NS_ENUM(NSInteger, WYPlayerViewType) {
+    WYPlayerViewTypeDefault        = 0,         //默认单个播放器
+    WYPlayerViewTypeCellList,                   //列表中的播放器
 };
+
 /**
  * 播放模型
  */
@@ -23,6 +21,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, strong) NSURL *videoURL;
 @property (nonatomic, strong) UIView *fatherView; //父视图
+@property (nonatomic, assign) WYPlayerViewType playerViewType;
 @property (nonatomic, assign) BOOL autoPlay; //自动播放
 
 @end
@@ -33,8 +32,6 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
  */
 @interface WYVideoPlayerView : UIView
 
-@property (nonatomic, readonly, assign) WYPlayerStatus playerStatus;
-
 - (void)playerVideoItem:(WYVideoItem *)videoItem;
 
 //重置播放器
@@ -43,4 +40,16 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (void)pause;
 
 - (void)play;
+@end
+
+@interface UIViewController (WYVideoPlayerRotation)
+@end
+
+@interface UITabBarController (WYVideoPlayerRotation)
+@end
+
+@interface UINavigationController (WYVideoPlayerRotation)<UIGestureRecognizerDelegate>
+@end
+
+@interface UIAlertController (WYVideoPlayerRotation)
 @end
