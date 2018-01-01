@@ -12,10 +12,19 @@
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *author;
+@property (nonatomic, copy) NSString *videoUrl;
 @property (nonatomic, copy) NSString *imageUrl;
 @property (nonatomic, assign) NSInteger comments;
 
-- (instancetype)initWithTitle:(NSString *)title author:(NSString *)author imageUrl:(NSString *)imageUrl comments:(NSInteger)comments;
-+ (instancetype)videoCellWithTitle:(NSString *)title author:(NSString *)author imageUrl:(NSString *)imageUrl comments:(NSInteger)comments;
+- (instancetype)initWithTitle:(NSString *)title
+                       author:(NSString *)author
+                     videoUrl:(NSString *)videoUrl
+                     imageUrl:(NSString *)imageUrl
+                     comments:(NSInteger)comments;
++ (instancetype)videoCellWithTitle:(NSString *)title
+                            author:(NSString *)author
+                          videoUrl:(NSString *)videoUrl
+                          imageUrl:(NSString *)imageUrl
+                          comments:(NSInteger)comments;
 
 @end
