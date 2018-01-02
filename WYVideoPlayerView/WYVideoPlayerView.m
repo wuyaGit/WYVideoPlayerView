@@ -8,7 +8,9 @@
 
 #import "WYVideoPlayerView.h"
 #import <AVFoundation/AVFoundation.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import <Masonry.h>
+#import "WYControlDisplayView.h"
 
 #define WYPlayerBundleSourcePath(file) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"WYVideoPlayer.bundle"] stringByAppendingPathComponent:file]
 #define WYPlayerBundleImageNamed(file) [UIImage imageWithContentsOfFile:WYPlayerBundleSourcePath(file)]
@@ -52,6 +54,9 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @property (nonatomic, strong) UIView *playerView;           //播放视图
 @property (nonatomic, strong) UIView *topView;             //顶部菜单
 @property (nonatomic, strong) UIView *bottomView;          //底部进度条
+@property (nonatomic, strong) WYControlDisplayView *displayView;        //底部进度条
+@property (nonatomic, strong) MPVolumeView *volumeView;        //底部进度条
+@property (nonatomic, strong) UISlider *volumeViewSlider;
 
 @property (nonatomic, strong) UIButton *backButton;
 @property (nonatomic, strong) UIButton *lockButton;                 //锁定屏幕
@@ -65,7 +70,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *currentTimeLabel;
 @property (nonatomic, strong) UILabel *totalTimeLabel;
-@property (nonatomic, strong) UILabel *fastTimeLabel;           //快进/倒退时间
+@property (nonatomic, strong) UILabel *percentageLabel;           //快进/倒退时间
 
 @property (nonatomic, strong) UIProgressView *loadedProgressView;           //缓冲进度条
 @property (nonatomic, strong) UIProgressView *faseProgressView;             //快进/倒退进度条
@@ -87,11 +92,6 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @end
 
 @implementation WYVideoPlayerView
-
-//https://github.com/cxj3599819/CCNMoviePlayerViewController
-//http://blog.csdn.net/u012881779/article/category/2739893/2
-//https://www.jianshu.com/p/813a74cc7e41
-//http://www.cocoachina.com/ios/20160921/17609.html
 
 /*--------------------------
 结构：
@@ -177,9 +177,17 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     //setup activity view
     [self addSubview:self.activityView];
     
+    //setup percentage label
+    [self addSubview:self.percentageLabel];
+
     //setup close button
     [self addSubview:self.closeButton];
 
+    //setup displayView
+    [self addSubview:self.displayView];
+    
+    //setup volumeView
+    [self addSubview:self.volumeView];
 }
 
 - (void)setupAVPlayer {
@@ -298,6 +306,22 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         make.centerY.equalTo(self.mas_centerY);
         make.width.height.mas_equalTo(50);
     }];
+    
+    self.percentageLabel.alpha = 0.0f;
+    [self.percentageLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.centerY.equalTo(self);
+    }];
+    
+    [self.displayView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.centerY.equalTo(self);
+        make.width.height.mas_offset(156);
+    }];
+    
+    [self.volumeView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.centerY.equalTo(self);
+        make.width.height.mas_offset(156);
+    }];
+
 }
 
 //初始化数据
@@ -527,12 +551,12 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         return NO;
     }
 
-    if (!self.isFullScreen) {
-        return NO;
-    }
-    if (self.playerStatus != WYPlayerStatusPlaying) {
-        return NO;
-    }
+//    if (!self.isFullScreen) {
+//        return NO;
+//    }
+//    if (self.playerStatus != WYPlayerStatusPlaying) {
+//        return NO;
+//    }
     
     return YES;
 }
@@ -612,14 +636,14 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     
     NSString *currTime = [NSString stringWithFormat:@"%02zd:%02zd", proMin, proSec];
     NSString *totlTime = [NSString stringWithFormat:@"%02zd:%02zd", durMin, durSec];
-    NSString *percentage = [NSString stringWithFormat:@"%@ / %@", currTime, totlTime];
+    NSString *percentage = [NSString stringWithFormat:@"%@/%@", currTime, totlTime];
     
     //
     self.currentTimeLabel.text = currTime;
     self.videoProgressSlider.value = draggedTime / (totalTime * 1.0);
 
     //显示快进多少/倒退多少
-    
+    self.percentageLabel.text = percentage;
 }
 
 //更新缓冲进度
@@ -653,6 +677,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             if (completionHandler) {
                 completionHandler(finished);
             }
+            weakSelf.dragged = NO;
             weakSelf.playButton.selected = YES;
             [weakSelf playerAutoFadeOutControlView];
         }];
@@ -731,6 +756,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.height.mas_equalTo(30);
         }];
 
+        [self.displayView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.centerY.equalTo(self);
+            make.width.height.mas_offset(156);
+        }];
+        
+        [self.volumeView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.centerY.equalTo(self);
+            make.width.height.mas_offset(156);
+        }];
+
         self.resolutionButton.hidden = NO;
         self.fullScreenButton.hidden = YES;
         self.lockButton.hidden = NO;
@@ -781,6 +816,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.width.height.mas_equalTo(30);
         }];
         
+        [self.displayView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.centerY.equalTo(self);
+            make.width.height.mas_offset(156);
+        }];
+
+        [self.volumeView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.centerY.equalTo(self);
+            make.width.height.mas_offset(156);
+        }];
+
         self.resolutionButton.hidden = YES;
         self.fullScreenButton.hidden = NO;
         self.lockButton.hidden = YES;
@@ -935,15 +980,18 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         self.panSeekTime = 0;
     }
     
-    
+    self.dragged = YES;
+    [self updateDraggedTime:self.panSeekTime totalTime:totalTime isForward:NO];
 }
 
 - (void)updateChangedVolume:(CGFloat)value {
-    
+    self.volumeView.hidden = NO;
+    self.volumeViewSlider.value -= value / 10000;
 }
 
 - (void)updateChangedLight:(CGFloat)value {
-    
+    [UIScreen mainScreen].brightness -= value / 10000;
+
 }
 
 #pragma mark - InterfaceOrientation
@@ -1100,10 +1148,8 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     }
 }
 
-
 - (void)onTouchSingleTapAction:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        
         [self playerShowOrHideControlView];
     }
 }
@@ -1125,7 +1171,8 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             //水平移动
             if (x > y) {
                 self.panChangedType = WYPlayerPanChangedSeektime;
-                
+                self.percentageLabel.alpha = 1;
+
                 CMTime currTime = self.player.currentTime;
                 self.panSeekTime = currTime.value / currTime.timescale;
             //垂直移动
@@ -1133,11 +1180,9 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
                 //左边亮度
                 if (location.x < [self bounds].size.width / 2) {
                     self.panChangedType = WYPlayerPanChangedLight;
-
                 //右边声音
                 }else {
                     self.panChangedType = WYPlayerPanChangedVolume;
-
                 }
             }
         }
@@ -1162,7 +1207,10 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         {
             switch (self.panChangedType) {
                 case WYPlayerPanChangedSeektime:
+                    [self seekToTime:self.panSeekTime completionHandler:nil];
                     self.panSeekTime = 0;
+                    self.percentageLabel.alpha = 0;
+
                     break;
                 case WYPlayerPanChangedVolume:
                     break;
@@ -1397,6 +1445,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     return _totalTimeLabel;
 }
 
+- (UILabel *)percentageLabel {
+    if (_percentageLabel == nil) {
+        _percentageLabel = [[UILabel alloc] init];
+        _percentageLabel.textColor = [UIColor whiteColor];
+        _percentageLabel.font = [UIFont boldSystemFontOfSize:26.f];
+        _percentageLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    return _percentageLabel;
+}
+
 - (UIProgressView *)loadedProgressView {
     if (_loadedProgressView == nil) {
         _loadedProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
@@ -1426,6 +1484,30 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         _activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     }
     return _activityView;
+}
+
+- (WYControlDisplayView *)displayView {
+    if (_displayView == nil) {
+        _displayView = [[WYControlDisplayView alloc] initWithFrame:CGRectMake(100, 100, 156, 156)];;
+    }
+    return _displayView;
+}
+
+- (MPVolumeView *)volumeView {
+    if (_volumeView == nil) {
+        _volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(0, 0, 156, 156)];
+//        _volumeView.showsRouteButton = NO;
+        _volumeView.showsVolumeSlider = YES;
+        
+        [[_volumeView subviews] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj isKindOfClass:[UISlider class]]) {
+                self.volumeViewSlider = obj;
+                *stop = YES;
+            }
+        }];
+    }
+    
+    return _volumeView;
 }
 
 @end

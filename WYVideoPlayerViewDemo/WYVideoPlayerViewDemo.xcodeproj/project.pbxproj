@@ -18,6 +18,7 @@
 		590735411FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 590735401FF389DD00CB3DD6 /* WYVideoPlayerViewDemoUITests.m */; };
 		5969B8411FF481C800453A6A /* WYVideoPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */; };
 		5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5969B8401FF481C800453A6A /* WYVideoPlayerView.m */; };
+		85205A2D1FFBC4CB00C4C470 /* WYControlDisplayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 85205A2C1FFBC4CB00C4C470 /* WYControlDisplayView.m */; };
 		85D101F01FF7BE9A00A7A231 /* VideoListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101EF1FF7BE9A00A7A231 /* VideoListViewController.m */; };
 		85D101F61FF7C1D600A7A231 /* VideoList1ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101F51FF7C1D600A7A231 /* VideoList1ViewController.m */; };
 		85D101F91FF7C1E800A7A231 /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 85D101F81FF7C1E800A7A231 /* VideoPlayerViewController.m */; };
@@ -63,6 +64,8 @@
 		5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYVideoPlayer.bundle; sourceTree = "<group>"; };
 		5969B83F1FF481C800453A6A /* WYVideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WYVideoPlayerView.h; sourceTree = "<group>"; };
 		5969B8401FF481C800453A6A /* WYVideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WYVideoPlayerView.m; sourceTree = "<group>"; };
+		85205A2B1FFBC4CB00C4C470 /* WYControlDisplayView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYControlDisplayView.h; sourceTree = "<group>"; };
+		85205A2C1FFBC4CB00C4C470 /* WYControlDisplayView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYControlDisplayView.m; sourceTree = "<group>"; };
 		85D101EE1FF7BE9A00A7A231 /* VideoListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListViewController.h; sourceTree = "<group>"; };
 		85D101EF1FF7BE9A00A7A231 /* VideoListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListViewController.m; sourceTree = "<group>"; };
 		85D101F41FF7C1D600A7A231 /* VideoList1ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoList1ViewController.h; sourceTree = "<group>"; };
@@ -182,6 +185,8 @@
 				5969B83E1FF481C800453A6A /* WYVideoPlayer.bundle */,
 				5969B83F1FF481C800453A6A /* WYVideoPlayerView.h */,
 				5969B8401FF481C800453A6A /* WYVideoPlayerView.m */,
+				85205A2B1FFBC4CB00C4C470 /* WYControlDisplayView.h */,
+				85205A2C1FFBC4CB00C4C470 /* WYControlDisplayView.m */,
 			);
 			name = WYVideoPlayerView;
 			path = ../WYVideoPlayerView;
@@ -429,6 +434,7 @@
 				85D102021FF7E74600A7A231 /* VideoListCellModel.m in Sources */,
 				590735211FF389DC00CB3DD6 /* ViewController.m in Sources */,
 				5969B8421FF481C800453A6A /* WYVideoPlayerView.m in Sources */,
+				85205A2D1FFBC4CB00C4C470 /* WYControlDisplayView.m in Sources */,
 				5907352C1FF389DC00CB3DD6 /* main.m in Sources */,
 				85D101F61FF7C1D600A7A231 /* VideoList1ViewController.m in Sources */,
 				5907351E1FF389DC00CB3DD6 /* AppDelegate.m in Sources */,

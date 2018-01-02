@@ -11,6 +11,8 @@
 #import "VideoListCellModel.h"
 #import "WYVideoPlayerView.h"
 
+#import "WYControlDisplayView.h"
+
 @interface VideoList2ViewController ()
 
 @property (nonatomic, strong) WYVideoPlayerView *playerView;
@@ -178,6 +180,9 @@
     [(UILabel *)[cell viewWithTag:11] setText:model.title];
     [(UILabel *)[cell viewWithTag:13] setText:[NSString stringWithFormat:@"%@",@(model.comments)]];
     [(UIButton *)[cell viewWithTag:12] setTitle:model.author forState:UIControlStateNormal];
+    
+//    WYControlDisplayView *di = [[WYControlDisplayView alloc] initWithFrame:CGRectMake(20, 100, 156, 156)];
+//    [cell.contentView addSubview:di];
     
     return cell;
 }
