@@ -143,8 +143,8 @@
                                             </constraints>
                                         </imageView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fB2-3a-70a">
-                                            <rect key="frame" x="156" y="126" width="62" height="62"/>
-                                            <state key="normal" image="cell_play"/>
+                                            <rect key="frame" x="159.5" y="129.5" width="55" height="55"/>
+                                            <state key="normal" image="new_detail_head_play"/>
                                             <connections>
                                                 <action selector="playVideo:" destination="sGK-Z0-XOy" eventType="touchUpInside" id="yYy-Hy-jsC"/>
                                             </connections>
@@ -218,6 +218,6 @@
     <resources>
         <image name="cell_chat" width="22" height="22"/>
         <image name="cell_more" width="15" height="3"/>
-        <image name="cell_play" width="62" height="62"/>
+        <image name="new_detail_head_play" width="55" height="55"/>
     </resources>
 </document>

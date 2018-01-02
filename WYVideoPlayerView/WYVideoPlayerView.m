@@ -26,6 +26,13 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     WYPlayerStatusPause                     //暂停播放
 };
 
+typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
+    WYPlayerPanChangedSeektime        = 0,
+    WYPlayerPanChangedVolume,
+    WYPlayerPanChangedLight
+};
+
+
 @implementation WYVideoItem
 
 @end
@@ -34,22 +41,26 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 
 @property (nonatomic, strong) WYVideoItem *videoItem;
 @property (nonatomic, assign) WYPlayerStatus playerStatus;
+@property (nonatomic, assign) WYPlayerPanChanged panChangedType;
+@property (nonatomic, assign) CGFloat panSeekTime;
+@property (nonatomic, strong) UIScrollView *scrollView;       //滚动视图
 
 @property (nonatomic, strong) AVPlayer *player;                 //控制器
 @property (nonatomic, strong) AVPlayerItem *playerItem;       //模型
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;     //视图
 
 @property (nonatomic, strong) UIView *playerView;           //播放视图
-@property (nonatomic, strong) UIImageView *topView;             //顶部菜单
-@property (nonatomic, strong) UIImageView *bottomView;          //底部进度条
-@property (nonatomic, strong) UIView *maskView;             //遮罩视图（工具视图）
+@property (nonatomic, strong) UIView *topView;             //顶部菜单
+@property (nonatomic, strong) UIView *bottomView;          //底部进度条
 
 @property (nonatomic, strong) UIButton *backButton;
-@property (nonatomic, strong) UIButton *resolutionButton;       //选择分辨率
 @property (nonatomic, strong) UIButton *lockButton;                 //锁定屏幕
 @property (nonatomic, strong) UIButton *playButton;
-@property (nonatomic, strong) UIButton *closeButton;
+@property (nonatomic, strong) UIButton *closeButton;                //小屏关闭
 @property (nonatomic, strong) UIButton *fullScreenButton;
+@property (nonatomic, strong) UIButton *shareButton;
+@property (nonatomic, strong) UIButton *moreButton;
+@property (nonatomic, strong) UIButton *resolutionButton;
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *currentTimeLabel;
@@ -67,7 +78,8 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 @property (nonatomic, getter=isDragged, assign) BOOL dragged; //是否正在拖动
 @property (nonatomic, getter=isFullScreen, assign) BOOL fullScreen; //是否是横屏
 @property (nonatomic, getter=isLockScreen, assign) BOOL lockScreen; //是否是锁屏状态
-@property (nonatomic, getter=isplayDidEnd, assign) BOOL playDidEnd; //播放完成
+@property (nonatomic, getter=isPlayDidEnd, assign) BOOL playDidEnd; //播放完成
+@property (nonatomic, getter=isBottomVideo, assign) BOOL bottomVideo; //在底部播放
 
 @property (nonatomic, getter=isEnterBackground, assign) BOOL enterBackground; //是否进入了后台
 @property (nonatomic, getter=isShowCtrlView, assign) BOOL showCtrlView; //是否显示控制视图
@@ -140,13 +152,13 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     //setup player view
     [self addSubview:self.playerView];
 
-//    [self addSubview:self.maskView];
     //setup top view
     [self addSubview:self.topView];
 
     [self.topView addSubview:self.backButton];
     [self.topView addSubview:self.titleLabel];
-    [self.topView addSubview:self.resolutionButton];
+    [self.topView addSubview:self.shareButton];
+    [self.topView addSubview:self.moreButton];
 
     //setup bottom view
     [self addSubview:self.bottomView];
@@ -157,12 +169,17 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     [self.bottomView addSubview:self.fullScreenButton];
     [self.bottomView addSubview:self.currentTimeLabel];
     [self.bottomView addSubview:self.totalTimeLabel];
-    
+    [self.bottomView addSubview:self.resolutionButton];
+
     //setup lock button
     [self addSubview:self.lockButton];
     
     //setup activity view
     [self addSubview:self.activityView];
+    
+    //setup close button
+    [self addSubview:self.closeButton];
+
 }
 
 - (void)setupAVPlayer {
@@ -182,33 +199,41 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         make.edges.mas_equalTo(UIEdgeInsetsZero);
     }];
     
-//    [self.maskView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.edges.mas_equalTo(UIEdgeInsetsZero);
-//    }];
     //------------ 顶部
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.equalTo(self);
-        make.top.equalTo(self.mas_top).offset(0);
+        make.leading.trailing.top.mas_offset(0);
         make.height.mas_equalTo(50);        //顶部视图高50
     }];
     
     [self.backButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.topView.mas_leading).offset(8);
+        make.leading.equalTo(self.topView.mas_leading).offset(4);
         make.top.equalTo(self.topView.mas_top).offset(3);
-        make.width.height.mas_equalTo(40);
+        make.width.height.mas_equalTo(80);
     }];
-    
+
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.equalTo(self.backButton.mas_trailing).offset(5);
-        make.centerY.equalTo(self.backButton.mas_centerY);
-        make.trailing.equalTo(self.resolutionButton.mas_leading).offset(-10);
+        make.top.equalTo(self.backButton.mas_top).offset(3);
+        make.trailing.equalTo(self.shareButton.mas_leading).offset(-10);
     }];
     
-    [self.resolutionButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.trailing.equalTo(self.topView.mas_trailing).offset(-10);
+    [self.shareButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.trailing.equalTo(self.moreButton.mas_leading).offset(10);
         make.centerY.equalTo(self.backButton.mas_centerY);
-        make.width.mas_equalTo(40);
-        make.height.mas_equalTo(25);
+        make.width.height.mas_equalTo(0);
+    }];
+    
+    [self.moreButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.trailing.equalTo(self.topView.mas_trailing).offset(-8);
+        make.centerY.equalTo(self.backButton.mas_centerY);
+        make.width.height.mas_equalTo(0);
+    }];
+    
+    self.closeButton.hidden = YES;
+    [self.closeButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.equalTo(self);
+        make.top.equalTo(self.mas_top).offset(0);
+        make.width.height.mas_equalTo(32);
     }];
     
     //------------- 底部
@@ -220,7 +245,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     [self.playButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.equalTo(self.bottomView.mas_leading).offset(5);
         make.bottom.equalTo(self.bottomView.mas_bottom).offset(-5);
-        make.width.height.mas_equalTo(30);
+        make.width.height.mas_equalTo(28);
     }];
     
     [self.currentTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -247,16 +272,23 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         make.centerY.equalTo(self.playButton.mas_centerY);
         make.width.mas_equalTo(42);
     }];
-    
+
     [self.fullScreenButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.equalTo(self.bottomView.mas_trailing).offset(-5);
         make.centerY.equalTo(self.playButton.mas_centerY);
         make.width.height.mas_equalTo(30);
     }];
     
+    self.resolutionButton.hidden = YES;
+    [self.resolutionButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.equalTo(self.fullScreenButton);
+        make.centerY.equalTo(self.playButton.mas_centerY);
+    }];
+    
     //------------ 中间
+    self.lockButton.hidden = YES;
     [self.lockButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.mas_leading).offset(15);
+        make.leading.equalTo(self.mas_leading).offset(10);
         make.centerY.equalTo(self.mas_centerY);
         make.width.height.mas_equalTo(32);
     }];
@@ -333,12 +365,14 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     singleTapGesture.delegate = self;
     singleTapGesture.numberOfTouchesRequired = 1;
     singleTapGesture.numberOfTapsRequired = 1;
+    singleTapGesture.delegate = self;
     [self.playerView addGestureRecognizer:singleTapGesture];
     
     UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchDoubleTapAction:)];
     doubleTapGesture.delegate = self;
     doubleTapGesture.numberOfTouchesRequired = 1; //一个手指
     doubleTapGesture.numberOfTapsRequired = 2;      //两次
+    doubleTapGesture.delegate = self;
     [self.playerView addGestureRecognizer:doubleTapGesture];
 
     // 解决点击当前view时候响应其他控件事件
@@ -346,6 +380,15 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     [doubleTapGesture setDelaysTouchesBegan:YES];
     // 双击失败响应单击事件
     [singleTapGesture requireGestureRecognizerToFail:doubleTapGesture];
+
+    //平移：声音、亮度、播放进度
+    UIPanGestureRecognizer *panGesetureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchPanAction:)];
+    panGesetureRecognizer.maximumNumberOfTouches = 1;
+    panGesetureRecognizer.delaysTouchesBegan = YES;
+    panGesetureRecognizer.delaysTouchesEnded = YES;
+    panGesetureRecognizer.cancelsTouchesInView = YES;
+    [self.playerView addGestureRecognizer:panGesetureRecognizer];
+
 }
 
 #pragma mark - NSNotificationCenter
@@ -403,6 +446,12 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
             if (self.isFullScreen) {
                 self.fullScreen = NO;
                 [self setupOrientationPortraitConstraints:UIInterfaceOrientationPortrait];
+                
+                [self updateViewConstraints];
+
+                if (self.isBottomVideo) {
+                    [self updatePlayerViewToBottomView];
+                }
             }
         }
             break;
@@ -411,6 +460,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
                 self.fullScreen = YES;
             }
             [self setupOrientationLandscapeConstraints:UIInterfaceOrientationLandscapeLeft];
+            [self updateViewConstraints];
         }
             break;
         case UIInterfaceOrientationLandscapeRight: {
@@ -418,6 +468,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
                 self.fullScreen = YES;
             }
             [self setupOrientationLandscapeConstraints:UIInterfaceOrientationLandscapeRight];
+            [self updateViewConstraints];
         }
             break;
         default:
@@ -433,7 +484,6 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     }else {
         if (!self.isDragged) {
             self.playDidEnd = YES;
-            self.showCtrlView = NO;
             [self hideControlView];
         }
     }
@@ -463,13 +513,26 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
                 self.playerStatus = WYPlayerStatusPlaying;
             }
         }
+    }else if (object == self.scrollView) {
+        if ([keyPath isEqualToString:@"contentOffset"] ) {
+            [self handelBottomVideoWithScrollOffset];
+        }
     }
 }
 
 #pragma mark - UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    
+    if (self.isBottomVideo) {
+        return NO;
+    }
+
+    if (!self.isFullScreen) {
+        return NO;
+    }
+    if (self.playerStatus != WYPlayerStatusPlaying) {
+        return NO;
+    }
     
     return YES;
 }
@@ -479,10 +542,14 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (void)playerVideoItem:(WYVideoItem *)videoItem {
     self.videoItem = videoItem;
     
+    if (videoItem.scrollView) {
+        self.scrollView = videoItem.scrollView;
+    }
+    
     [self updatePlayerViewToFatherView];
     
     [self setupData];
-    
+
     if (videoItem.autoPlay) {
         [self resetPlayData];
     }
@@ -581,6 +648,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         [self.player seekToTime:time toleranceBefore:time toleranceAfter:CMTimeMake(1, 1) completionHandler:^(BOOL finished) {
             [weakSelf.activityView stopAnimating];
             [weakSelf.player play];
+            [weakSelf setPlayerStatus:WYPlayerStatusPlaying];
             
             if (completionHandler) {
                 completionHandler(finished);
@@ -588,17 +656,222 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
             weakSelf.playButton.selected = YES;
             [weakSelf playerAutoFadeOutControlView];
         }];
-        
     }
 }
 
 - (void)updatePlayerViewToFatherView {
-    if (_videoItem.fatherView) {
+    if (_videoItem.indexPath) {
+        [self removeFromSuperview];
+        
+        UIView *fatherView = nil;
+        if ([self.scrollView isKindOfClass:[UITableView class]]) {
+            UITableView *tableView = (UITableView *)self.scrollView;
+            UITableViewCell *cell = [tableView cellForRowAtIndexPath:self.videoItem.indexPath];
+            
+            fatherView = [cell viewWithTag:self.videoItem.fatherViewTag];
+            
+        }else if ([self.scrollView isKindOfClass:[UICollectionView class]]) {
+            UICollectionView *collectionView = (UICollectionView *)self.scrollView;
+            UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:self.videoItem.indexPath];
+            
+            fatherView = [cell viewWithTag:self.videoItem.fatherViewTag];
+        }
+        
+        if (fatherView) {
+            [fatherView addSubview:self];
+            [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.edges.mas_equalTo(UIEdgeInsetsZero);
+            }];
+        }
+    }else if (_videoItem.fatherView) {
         [self removeFromSuperview];
         [_videoItem.fatherView addSubview:self];
         [self mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.edges.mas_equalTo(UIEdgeInsetsZero);
         }];
+    }
+}
+
+- (void)updateViewConstraints {
+    if (self.isFullScreen) {
+        if (_playerViewType == WYPlayerViewTypeCellList ||
+            _playerViewType == WYPlayerViewTypeCellListNoTitle) {
+            self.titleLabel.hidden = NO;
+            
+            [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.equalTo(self.topView.mas_leading).offset(5);
+                make.top.equalTo(self.topView.mas_top).offset(3);
+                make.width.height.mas_equalTo(32);
+            }];
+        }
+
+        self.titleLabel.numberOfLines = 1;
+        [self.titleLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.backButton.mas_trailing).offset(5);
+            make.centerY.equalTo(self.backButton.mas_centerY);
+            make.trailing.equalTo(self.shareButton.mas_leading).offset(-10);
+        }];
+        
+        [self.shareButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.moreButton.mas_leading).offset(0);
+            make.centerY.equalTo(self.backButton.mas_centerY);
+            make.width.height.mas_equalTo(32);
+        }];
+        
+        [self.moreButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.topView.mas_trailing).offset(-12);
+            make.centerY.equalTo(self.backButton.mas_centerY);
+            make.width.height.mas_equalTo(32);
+        }];
+
+        [self.fullScreenButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.bottomView.mas_trailing).offset(-5);
+            make.centerY.equalTo(self.playButton.mas_centerY);
+            make.width.mas_equalTo(50);
+            make.height.mas_equalTo(30);
+        }];
+
+        self.resolutionButton.hidden = NO;
+        self.fullScreenButton.hidden = YES;
+        self.lockButton.hidden = NO;
+
+    }else {
+        if (_playerViewType == WYPlayerViewTypeCellList) {
+            self.titleLabel.hidden = NO;
+            
+            [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.equalTo(self.topView.mas_leading).offset(5);
+                make.top.equalTo(self.topView.mas_top).offset(3);
+                make.width.mas_equalTo(0);
+                make.height.mas_equalTo(32);
+            }];
+        }else if (_playerViewType == WYPlayerViewTypeCellListNoTitle) {
+            self.titleLabel.hidden = YES;
+            
+            [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.equalTo(self.topView.mas_leading).offset(5);
+                make.top.equalTo(self.topView.mas_top).offset(3);
+                make.width.mas_equalTo(0);
+                make.height.mas_equalTo(32);
+            }];
+        }
+
+        self.titleLabel.numberOfLines = 2;
+        [self.titleLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.backButton.mas_trailing).offset(5);
+            make.top.equalTo(self.backButton.mas_top).offset(3);
+            make.trailing.equalTo(self.shareButton.mas_leading).offset(-10);
+        }];
+        
+        [self.shareButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.moreButton.mas_leading).offset(10);
+            make.centerY.equalTo(self.backButton.mas_centerY);
+            make.width.height.mas_equalTo(0);
+        }];
+        
+        [self.moreButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.topView.mas_trailing).offset(-8);
+            make.centerY.equalTo(self.backButton.mas_centerY);
+            make.width.height.mas_equalTo(0);
+        }];
+        
+        [self.fullScreenButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.equalTo(self.bottomView.mas_trailing).offset(-5);
+            make.centerY.equalTo(self.playButton.mas_centerY);
+            make.width.height.mas_equalTo(30);
+        }];
+        
+        self.resolutionButton.hidden = YES;
+        self.fullScreenButton.hidden = NO;
+        self.lockButton.hidden = YES;
+
+      
+    }
+    
+    [self layoutIfNeeded];
+}
+
+- (void)updatePlayerViewToBottomView {
+    if (self.isBottomVideo) {
+        return;
+    }
+    if (!(self.playerStatus == WYPlayerStatusPlaying || self.playerStatus == WYPlayerStatusBuffering)) {
+        return;
+    }
+    
+    self.bottomVideo = YES;
+    self.closeButton.hidden = NO;
+    
+    self.topView.alpha = 0;
+    self.bottomView.alpha = 0;
+    self.lockButton.alpha = 0;
+    self.showCtrlView = NO;
+    [self playerCancelAutoFadeOutControlView];
+  
+    
+    [[UIApplication sharedApplication].keyWindow addSubview:self];
+    
+    CGFloat width = [[UIScreen mainScreen] bounds].size.width * 0.5 - 20;
+    CGFloat heightBy = self.bounds.size.height / self.bounds.size.width;
+    [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(width);
+        make.height.equalTo(self.mas_width).multipliedBy(heightBy);
+        make.bottom.mas_equalTo(0);
+        make.trailing.mas_equalTo(width);
+    }];
+    
+    [UIView animateWithDuration:3.5 animations:^{
+        [self mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.width.mas_equalTo(width);
+            make.height.equalTo(self.mas_width).multipliedBy(heightBy);
+            make.bottom.mas_equalTo(0);
+            make.trailing.mas_equalTo(0);
+        }];
+    }];
+    
+}
+
+- (void)updatePlayerViewToScrollCellView {
+    if (!self.isBottomVideo) {
+        return;
+    }
+    self.bottomVideo = NO;
+    self.closeButton.hidden = YES;
+
+    [self showControlView];
+    
+    [self updatePlayerViewToFatherView];
+}
+
+- (void)handelBottomVideoWithScrollOffset {
+    if ([self.scrollView isKindOfClass:[UITableView class]]) {
+        UITableView *tableView = (UITableView *)self.scrollView;
+        UITableViewCell *cell = [tableView cellForRowAtIndexPath:self.videoItem.indexPath];
+        
+        NSArray *visibleCells = tableView.visibleCells;
+        //在复用列表中，且正在播放
+        if (![visibleCells containsObject:cell]) {
+            [self updatePlayerViewToBottomView];
+        }else {
+            if (self.bottomVideo) {
+                [self updatePlayerViewToScrollCellView];
+            }
+        }
+        
+        
+    }else if ([self.scrollView isKindOfClass:[UICollectionView class]]) {
+        UICollectionView *collectionView = (UICollectionView *)self.scrollView;
+        UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:self.videoItem.indexPath];
+        
+        NSArray *visibleCells = collectionView.visibleCells;
+        //在复用列表中，且正在播放
+        if (![visibleCells containsObject:cell]) {
+            [self updatePlayerViewToBottomView];
+        }else {
+            if (self.bottomVideo) {
+                [self updatePlayerViewToScrollCellView];
+            }
+        }
     }
 }
 
@@ -649,6 +922,29 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     }];
 }
 
+
+- (void)updateChangedSeektime:(CGFloat)value {
+    self.panSeekTime += value / 200;
+    
+//    CMTime totalTime = self.playerItem.duration;
+    CGFloat totalTime = self.playerItem.duration.value / self.playerItem.duration.timescale;
+    if (self.panSeekTime > totalTime) {
+        self.panSeekTime = totalTime;
+    }
+    if (self.panSeekTime < 0) {
+        self.panSeekTime = 0;
+    }
+    
+    
+}
+
+- (void)updateChangedVolume:(CGFloat)value {
+    
+}
+
+- (void)updateChangedLight:(CGFloat)value {
+    
+}
 
 #pragma mark - InterfaceOrientation
 
@@ -722,8 +1018,9 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 
 #pragma mark - Touch Methods
 
-- (void)onTouchGobackAction:(id)sender {
-    
+//横屏点击返回键
+- (void)onTouchGotobackAction:(id)sender {
+    [self onTouchFullScreenAction:nil];
 }
 
 - (void)onTouchLockScreenAction:(id)sender {
@@ -759,10 +1056,21 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         }
         self.fullScreen = YES;
     }
+    [self updateViewConstraints];
+}
+
+- (void)onTouchSharedAction:(id)sender {
+    
+}
+
+- (void)onTouchMoreAction:(id)sender {
+    
 }
 
 - (void)onTouchCloseVideoAction:(id)sender {
+    [self pause];
     
+    [self updatePlayerViewToScrollCellView];
 }
 
 - (void)onTouchSliderBegan:(id)sender {
@@ -795,20 +1103,78 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 
 - (void)onTouchSingleTapAction:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        if (self.playDidEnd) {
-            return;
-        }else {
-            [self playerShowOrHideControlView];
-        }
+        
+        [self playerShowOrHideControlView];
     }
 }
 
 - (void)onTouchDoubleTapAction:(UITapGestureRecognizer *)gestureRecognizer {
-    if (self.playDidEnd) {
-        return;
+    [self onTouchFullScreenAction:nil];
+}
+
+- (void)onTouchPanAction:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint location = [gestureRecognizer locationInView:self.playerView];
+    CGPoint veloctyPoint = [gestureRecognizer velocityInView:self.playerView];
+    
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            CGFloat x = fabs(veloctyPoint.x);
+            CGFloat y = fabs(veloctyPoint.y);
+            
+            //水平移动
+            if (x > y) {
+                self.panChangedType = WYPlayerPanChangedSeektime;
+                
+                CMTime currTime = self.player.currentTime;
+                self.panSeekTime = currTime.value / currTime.timescale;
+            //垂直移动
+            }else if (x < y) {
+                //左边亮度
+                if (location.x < [self bounds].size.width / 2) {
+                    self.panChangedType = WYPlayerPanChangedLight;
+
+                //右边声音
+                }else {
+                    self.panChangedType = WYPlayerPanChangedVolume;
+
+                }
+            }
+        }
+            break;
+        case UIGestureRecognizerStateChanged:
+        {
+            switch (self.panChangedType) {
+                case WYPlayerPanChangedSeektime:
+                    [self updateChangedSeektime:veloctyPoint.x];
+                    break;
+                case WYPlayerPanChangedVolume:
+                    [self updateChangedVolume:veloctyPoint.y];
+                    break;
+                case WYPlayerPanChangedLight:
+                    [self updateChangedLight:veloctyPoint.y];
+                    break;
+            }
+        }
+            break;
+            
+        case UIGestureRecognizerStateEnded:
+        {
+            switch (self.panChangedType) {
+                case WYPlayerPanChangedSeektime:
+                    self.panSeekTime = 0;
+                    break;
+                case WYPlayerPanChangedVolume:
+                    break;
+                case WYPlayerPanChangedLight:
+                    break;
+            }
+        }
+            break;
+        default:
+            break;
     }
     
-    [self showControlView];
 }
 
 #pragma mark - Setter
@@ -820,6 +1186,33 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         [self.activityView startAnimating];
     }else {
         [self.activityView stopAnimating];
+    }
+}
+
+- (void)setPlayerViewType:(WYPlayerViewType)playerViewType {
+    _playerViewType = playerViewType;
+    //默认单个播放器：在小屏状态下，有返回按钮和标题
+    //默认列表播放器：在小屏状态下，无返回按钮，有标题
+    //无标题列表播放器：在小屏状态下，无返回按钮和标题
+    if (playerViewType == WYPlayerViewTypeCellList) {
+        self.titleLabel.hidden = NO;
+        
+        [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.topView.mas_leading).offset(5);
+            make.top.equalTo(self.topView.mas_top).offset(3);
+            make.width.mas_equalTo(0);
+            make.height.mas_equalTo(32);
+        }];
+
+    }else if (playerViewType == WYPlayerViewTypeCellListNoTitle){
+        self.titleLabel.hidden = YES;
+
+        [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.topView.mas_leading).offset(5);
+            make.top.equalTo(self.topView.mas_top).offset(3);
+            make.width.mas_equalTo(0);
+            make.height.mas_equalTo(32);
+        }];
     }
 }
 
@@ -848,8 +1241,27 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     }
 }
 
+- (void)setScrollView:(UIScrollView *)scrollView {
+    if (_scrollView == scrollView) {
+        return;
+    }
+    if (_scrollView) {
+        [_scrollView removeObserver:self forKeyPath:@"contentOffset"];
+    }
+    _scrollView = scrollView;
+    
+    if (scrollView) {
+        [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
+    }
+}
+
 - (void)setFullScreen:(BOOL)fullScreen {
     _fullScreen = fullScreen;
+    self.videoItem.statusBarHidden = fullScreen;
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.videoItem.visibleViewController setNeedsStatusBarAppearanceUpdate];
+    }];
     
     self.fullScreenButton.selected = fullScreen;
 }
@@ -864,28 +1276,16 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     return _playerView;
 }
 
-- (UIView *)maskView {
-    if (_maskView == nil) {
-        _maskView = [[UIView alloc] init];
-        _maskView.backgroundColor = WYPlayerColorWithRGBA(0, 0, 0, 0.4);
-    }
-    return _maskView;
-}
-
-- (UIImageView *)topView {
+- (UIView *)topView {
     if (_topView == nil) {
-        _topView = [[UIImageView alloc] init];
-//        _topView.image =  WYPlayerBundleImageNamed(@"WYPlayer_top_shadow");
-        _topView.userInteractionEnabled = YES;
+        _topView = [[UIView alloc] init];
     }
     return _topView;
 }
 
-- (UIImageView *)bottomView {
+- (UIView *)bottomView {
     if (_bottomView == nil) {
-        _bottomView = [[UIImageView alloc] init];
-//        _bottomView.image = WYPlayerBundleImageNamed(@"WYPlayer_bottom_shadow");
-        _bottomView.userInteractionEnabled = YES;
+        _bottomView = [[UIView alloc] init];
     }
     return _bottomView;
 }
@@ -893,8 +1293,8 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)backButton {
     if (_backButton == nil) {
         _backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_backButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_back") forState:UIControlStateNormal];
-        [_backButton addTarget:self action:@selector(onTouchGobackAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_backButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_icon_nav_back") forState:UIControlStateNormal];
+        [_backButton addTarget:self action:@selector(onTouchGotobackAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _backButton;
 }
@@ -902,9 +1302,10 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)resolutionButton {
     if (_resolutionButton == nil) {
         _resolutionButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _resolutionButton.titleLabel.font = [UIFont systemFontOfSize:12];
-        _resolutionButton.backgroundColor = WYPlayerColorWithRGBA(0, 0, 0, 0.4);
-        [_resolutionButton addTarget:self action:@selector(onTouchGobackAction:) forControlEvents:UIControlEventTouchUpInside];
+        _resolutionButton.titleLabel.font = [UIFont systemFontOfSize:12.f];
+        [_resolutionButton setTitle:@"高清" forState:UIControlStateNormal];
+        [_resolutionButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//        [_resolutionButton addTarget:self action:@selector(onTouchGobackAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _resolutionButton;
 }
@@ -912,8 +1313,8 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)lockButton {
     if (_lockButton == nil) {
         _lockButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_lockButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_unlock") forState:UIControlStateNormal];
-        [_lockButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_lock") forState:UIControlStateSelected];
+        [_lockButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_icon_unlock") forState:UIControlStateNormal];
+        [_lockButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_icon_lock") forState:UIControlStateSelected];
         [_lockButton addTarget:self action:@selector(onTouchLockScreenAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _lockButton;
@@ -922,8 +1323,8 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)playButton {
     if (_playButton == nil) {
         _playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_playButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_play") forState:UIControlStateNormal];
-        [_playButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_pause") forState:UIControlStateSelected];
+        [_playButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_ctrl_icon_play") forState:UIControlStateNormal];
+        [_playButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_ctrl_icon_pause") forState:UIControlStateSelected];
         [_playButton addTarget:self action:@selector(onTouchPlayVideoAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _playButton;
@@ -932,8 +1333,9 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)closeButton {
     if (_closeButton == nil) {
         _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_closeButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_close") forState:UIControlStateNormal];
-        [_lockButton addTarget:self action:@selector(onTouchCloseVideoAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_closeButton setBackgroundColor:WYPlayerColorWithRGBA(0, 0, 0, 0.4)];
+        [_closeButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_fullscreen_nav_close") forState:UIControlStateNormal];
+        [_closeButton addTarget:self action:@selector(onTouchCloseVideoAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _closeButton;
 }
@@ -941,18 +1343,36 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
 - (UIButton *)fullScreenButton {
     if (_fullScreenButton == nil) {
         _fullScreenButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_fullScreenButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_fullscreen") forState:UIControlStateNormal];
-        [_fullScreenButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_shrinkscreen") forState:UIControlStateSelected];
+        [_fullScreenButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_icon_fullscreen") forState:UIControlStateNormal];
         [_fullScreenButton addTarget:self action:@selector(onTouchFullScreenAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _fullScreenButton;
+}
+
+- (UIButton *)shareButton {
+    if (_shareButton == nil) {
+        _shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_shareButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_fullplayer_icon_share") forState:UIControlStateNormal];
+        [_shareButton addTarget:self action:@selector(onTouchSharedAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _shareButton;
+}
+
+- (UIButton *)moreButton {
+    if (_moreButton == nil) {
+        _moreButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_moreButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_fullplayer_icon_more") forState:UIControlStateNormal];
+        [_moreButton addTarget:self action:@selector(onTouchMoreAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _moreButton;
 }
 
 - (UILabel *)titleLabel {
     if (_titleLabel == nil) {
         _titleLabel = [[UILabel alloc] init];
         _titleLabel.textColor = [UIColor whiteColor];
-        _titleLabel.font = [UIFont systemFontOfSize:14.f];
+        _titleLabel.numberOfLines = 2;
+        _titleLabel.font = [UIFont boldSystemFontOfSize:15.f];
     }
     return _titleLabel;
 }
@@ -961,7 +1381,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     if (_currentTimeLabel == nil) {
         _currentTimeLabel = [[UILabel alloc] init];
         _currentTimeLabel.textColor = [UIColor whiteColor];
-        _currentTimeLabel.font = [UIFont systemFontOfSize:12.f];
+        _currentTimeLabel.font = [UIFont systemFontOfSize:10.f];
         _currentTimeLabel.textAlignment = NSTextAlignmentCenter;
     }
     return _currentTimeLabel;
@@ -971,7 +1391,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     if (_totalTimeLabel == nil) {
         _totalTimeLabel = [[UILabel alloc] init];
         _totalTimeLabel.textColor = [UIColor whiteColor];
-        _totalTimeLabel.font = [UIFont systemFontOfSize:12.f];
+        _totalTimeLabel.font = [UIFont systemFontOfSize:10.f];
         _totalTimeLabel.textAlignment = NSTextAlignmentCenter;
     }
     return _totalTimeLabel;
@@ -992,7 +1412,7 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
         _videoProgressSlider.minimumTrackTintColor = WYPlayerColorWithRGBA(0, 122, 255, 1);
         _videoProgressSlider.maximumTrackTintColor = [UIColor clearColor];
         
-        [_videoProgressSlider setThumbImage:WYPlayerBundleImageNamed(@"WYPlayer_slider") forState:UIControlStateNormal];
+        [_videoProgressSlider setThumbImage:WYPlayerBundleImageNamed(@"WYPlayer_player_icon_slider") forState:UIControlStateNormal];
         
         [_videoProgressSlider addTarget:self action:@selector(onTouchSliderBegan:) forControlEvents:UIControlEventTouchDown];
         [_videoProgressSlider addTarget:self action:@selector(onTouchSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -1007,7 +1427,6 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     }
     return _activityView;
 }
-
 
 @end
 
@@ -1036,13 +1455,13 @@ typedef NS_ENUM(NSInteger, WYPlayerStatus) {
     return UIInterfaceOrientationPortrait;
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle {
-    return UIStatusBarStyleDefault; // your own style
-}
-
-- (BOOL)prefersStatusBarHidden {
-    return NO; // your own visibility code
-}
+//- (UIStatusBarStyle)preferredStatusBarStyle {
+//    return UIStatusBarStyleDefault; // your own style
+//}
+//
+//- (BOOL)prefersStatusBarHidden {
+//    return NO; // your own visibility code
+//}
 
 @end
 

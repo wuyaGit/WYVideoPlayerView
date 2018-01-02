@@ -21,6 +21,18 @@
 
 @implementation VideoList2ViewController
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    if (_playerView) {
+        [_playerView pause];
+        [_playerView removeFromSuperview];
+        
+        _playerView = nil;
+        _playerViewItem = nil;
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -28,6 +40,11 @@
     self.tableView.estimatedRowHeight = 330.0f;
     
     [self createData];
+}
+
+//此处必须设置，在横屏状态下隐藏状态栏；否则，横屏状态下点击返回按钮无效，因为被状态栏遮挡了
+- (BOOL)prefersStatusBarHidden {
+    return self.playerViewItem.statusBarHidden;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -118,8 +135,11 @@
 
     self.playerViewItem.title = model.title;
     self.playerViewItem.videoURL = [NSURL URLWithString:model.videoUrl];
-    self.playerViewItem.fatherView = [cell viewWithTag:110];
-    
+    self.playerViewItem.indexPath = indexPath;
+    self.playerViewItem.scrollView = self.tableView;
+    self.playerViewItem.fatherViewTag = 110;
+    self.playerViewItem.visibleViewController = self;
+
     [self.playerView playerVideoItem:self.playerViewItem];
 }
 
@@ -128,6 +148,7 @@
 - (WYVideoPlayerView *)playerView {
     if (_playerView == nil) {
         _playerView = [[WYVideoPlayerView alloc] init];
+        _playerView.playerViewType = WYPlayerViewTypeCellList;
     }
     
     return _playerView;
@@ -136,6 +157,7 @@
 - (WYVideoItem *)playerViewItem {
     if (_playerViewItem == nil) {
         _playerViewItem = [[WYVideoItem alloc] init];
+        _playerViewItem.scrollView = self.tableView;
         _playerViewItem.autoPlay = YES;
     }
     return _playerViewItem;
