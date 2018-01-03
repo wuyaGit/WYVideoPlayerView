@@ -1,5 +1,5 @@
 //
-//  WYControlDisplayView.h
+//  WYPlayerBrightnessView.h
 //  WYVideoPlayerViewDemo
 //
 //  Created by Yangguangliang on 2018/1/2.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface WYControlDisplayView : UIView
+@interface WYPlayerBrightnessView : UIView
 
 @end

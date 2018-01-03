@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "WYPlayerManager.h"
 
 typedef NS_ENUM(NSInteger, WYPlayerViewType) {
     WYPlayerViewTypeDefault        = 0,         //默认单个播放器
@@ -21,10 +22,11 @@ typedef NS_ENUM(NSInteger, WYPlayerViewType) {
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, strong) NSURL *videoURL;
+@property (nonatomic, strong) NSURL *placeholderImageURL;
+@property (nonatomic, strong) NSDictionary *resolutionDic;
+
 @property (nonatomic, strong) UIView *fatherView;     //父视图
 @property (nonatomic, assign) BOOL autoPlay;            //自动播放
-@property (nonatomic, assign) BOOL statusBarHidden;
-@property (nonatomic, strong) UIViewController *visibleViewController;
 
 @property (nonatomic, strong) UIScrollView *scrollView;         //UITableView 或CUICollectionView
 @property (nonatomic, strong) NSIndexPath *indexPath;           //UITableView 或CUICollectionView 的位置信息
@@ -32,20 +34,23 @@ typedef NS_ENUM(NSInteger, WYPlayerViewType) {
 
 @end
 
-/**
- * 播放器
- */
+@protocol WYVideoPlayerViewDelegate;
+
 @interface WYVideoPlayerView : UIView
 @property (nonatomic, assign) WYPlayerViewType playerViewType;
+@property (nonatomic, assign) id<WYVideoPlayerViewDelegate> delegate;
 
 - (void)playerVideoItem:(WYVideoItem *)videoItem;
-
-//重置播放器
-- (void)resetPlayer;
-
 - (void)pause;
-
 - (void)play;
+@end
+
+@protocol WYVideoPlayerViewDelegate <NSObject>
+
+@optional
+- (void)wy_dismissViewControllerAnimated:(BOOL)animated completion:(void (^)(void))completion;
+- (void)wy_videoPlayerToEndTime:(WYVideoPlayerView *)playerView;
+
 @end
 
 @interface UIViewController (WYVideoPlayerRotation)

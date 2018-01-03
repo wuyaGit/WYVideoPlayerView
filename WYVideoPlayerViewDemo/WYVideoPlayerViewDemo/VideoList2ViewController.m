@@ -8,10 +8,9 @@
 
 #import "VideoList2ViewController.h"
 #import <UIImageView+WebCache.h>
+#import <Masonry.h>
 #import "VideoListCellModel.h"
 #import "WYVideoPlayerView.h"
-
-#import "WYControlDisplayView.h"
 
 @interface VideoList2ViewController ()
 
@@ -30,8 +29,6 @@
         [_playerView pause];
         [_playerView removeFromSuperview];
         
-        _playerView = nil;
-        _playerViewItem = nil;
     }
 }
 
@@ -44,9 +41,13 @@
     [self createData];
 }
 
-//此处必须设置，在横屏状态下隐藏状态栏；否则，横屏状态下点击返回按钮无效，因为被状态栏遮挡了
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return [WYPlayerManager sharedInstance].isLandscape ? UIStatusBarStyleLightContent : UIStatusBarStyleDefault;
+}
+
+//此处必须设置，在横屏状态下隐藏状态栏
 - (BOOL)prefersStatusBarHidden {
-    return self.playerViewItem.statusBarHidden;
+    return [WYPlayerManager sharedInstance].statusBarHidden;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -126,7 +127,7 @@
 
 #pragma mark - Touch
 
-- (IBAction)playVideo:(id)sender {
+- (void)playVideo:(id)sender {
     while (![[sender superview] isKindOfClass:[UITableViewCell class]]) {
         sender = [sender superview];
     }
@@ -137,12 +138,29 @@
 
     self.playerViewItem.title = model.title;
     self.playerViewItem.videoURL = [NSURL URLWithString:model.videoUrl];
+    self.playerViewItem.placeholderImageURL = [NSURL URLWithString:model.imageUrl];
     self.playerViewItem.indexPath = indexPath;
     self.playerViewItem.scrollView = self.tableView;
     self.playerViewItem.fatherViewTag = 110;
-    self.playerViewItem.visibleViewController = self;
+    
+    //分辨率中只能是网络视频，本地视频不支持
+    self.playerViewItem.resolutionDic = @{@"高清": @"http://120.25.226.186:32812/resources/videos/minion_01.mp4", @"超清": @"http://120.25.226.186:32812/resources/videos/minion_02.mp4"};
 
     [self.playerView playerVideoItem:self.playerViewItem];
+}
+
+#pragma mark - Private
+
+- (void)setupPlayButton:(UIView *)view {
+    UIButton *playButton = [[UIButton alloc] init];
+    [playButton setImage:[UIImage imageNamed:@"new_detail_head_play"] forState:UIControlStateNormal];
+    [playButton addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+    [playButton setTag:1997];
+    [view addSubview:playButton];
+    
+    [playButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.centerY.equalTo(view);
+    }];
 }
 
 #pragma mark - Getter
@@ -150,7 +168,7 @@
 - (WYVideoPlayerView *)playerView {
     if (_playerView == nil) {
         _playerView = [[WYVideoPlayerView alloc] init];
-        _playerView.playerViewType = WYPlayerViewTypeCellList;
+        _playerView.playerViewType = WYPlayerViewTypeCellListNoTitle;
     }
     
     return _playerView;
@@ -163,6 +181,7 @@
         _playerViewItem.autoPlay = YES;
     }
     return _playerViewItem;
+    
 }
 
 #pragma mark - Table view data source
@@ -176,14 +195,16 @@
     
     VideoListCellModel *model = self.dataArray[indexPath.row];
     
+    if (![[cell viewWithTag:110] viewWithTag:1997]) {
+        [self setupPlayButton:[cell viewWithTag:110]];
+    }
+
+    //设置占位图宽高时可以根据视频大小设置
     [(UIImageView *)[cell viewWithTag:110] sd_setImageWithURL:[NSURL URLWithString:model.imageUrl] placeholderImage:[UIImage imageNamed:@"cell_loading_bg"]];
     [(UILabel *)[cell viewWithTag:11] setText:model.title];
     [(UILabel *)[cell viewWithTag:13] setText:[NSString stringWithFormat:@"%@",@(model.comments)]];
     [(UIButton *)[cell viewWithTag:12] setTitle:model.author forState:UIControlStateNormal];
-    
-//    WYControlDisplayView *di = [[WYControlDisplayView alloc] initWithFrame:CGRectMake(20, 100, 156, 156)];
-//    [cell.contentView addSubview:di];
-    
+        
     return cell;
 }
 

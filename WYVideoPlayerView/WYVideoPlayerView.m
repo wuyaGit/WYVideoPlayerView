@@ -10,7 +10,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <Masonry.h>
-#import "WYControlDisplayView.h"
+#import <UIImageView+WebCache.h>
+#import "WYPlayerBrightnessView.h"
 
 #define WYPlayerBundleSourcePath(file) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"WYVideoPlayer.bundle"] stringByAppendingPathComponent:file]
 #define WYPlayerBundleImageNamed(file) [UIImage imageWithContentsOfFile:WYPlayerBundleSourcePath(file)]
@@ -54,9 +55,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @property (nonatomic, strong) UIView *playerView;           //播放视图
 @property (nonatomic, strong) UIView *topView;             //顶部菜单
 @property (nonatomic, strong) UIView *bottomView;          //底部进度条
-@property (nonatomic, strong) WYControlDisplayView *displayView;        //底部进度条
-@property (nonatomic, strong) MPVolumeView *volumeView;        //底部进度条
+@property (nonatomic, strong) UIView *resolutionView;       //分辨率视图
+@property (nonatomic, strong) UIImageView *placeholderImageView; //占位图
+@property (nonatomic, strong) UIView *completedView;           //播放完成、失败
+
+@property (nonatomic, strong) WYPlayerBrightnessView *displayView;        //调节亮度视图
 @property (nonatomic, strong) UISlider *volumeViewSlider;
+
+@property (nonatomic, strong) UITapGestureRecognizer *singleTapGesture;
+@property (nonatomic, strong) UITapGestureRecognizer *doubleTapGesture;
+@property (nonatomic, strong) UIPanGestureRecognizer *panGesetureRecognizer;
 
 @property (nonatomic, strong) UIButton *backButton;
 @property (nonatomic, strong) UIButton *lockButton;                 //锁定屏幕
@@ -66,11 +74,13 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *moreButton;
 @property (nonatomic, strong) UIButton *resolutionButton;
+@property (nonatomic, strong) UIButton *completedButton;
 
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *currentTimeLabel;
 @property (nonatomic, strong) UILabel *totalTimeLabel;
 @property (nonatomic, strong) UILabel *percentageLabel;           //快进/倒退时间
+@property (nonatomic, strong) UILabel *completedLabel;           //快进/倒退时间
 
 @property (nonatomic, strong) UIProgressView *loadedProgressView;           //缓冲进度条
 @property (nonatomic, strong) UIProgressView *faseProgressView;             //快进/倒退进度条
@@ -83,7 +93,6 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 @property (nonatomic, getter=isDragged, assign) BOOL dragged; //是否正在拖动
 @property (nonatomic, getter=isFullScreen, assign) BOOL fullScreen; //是否是横屏
 @property (nonatomic, getter=isLockScreen, assign) BOOL lockScreen; //是否是锁屏状态
-@property (nonatomic, getter=isPlayDidEnd, assign) BOOL playDidEnd; //播放完成
 @property (nonatomic, getter=isBottomVideo, assign) BOOL bottomVideo; //在底部播放
 
 @property (nonatomic, getter=isEnterBackground, assign) BOOL enterBackground; //是否进入了后台
@@ -152,6 +161,9 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     //setup player view
     [self addSubview:self.playerView];
 
+    //setup placeholderImageView
+    [self addSubview:self.placeholderImageView];
+    
     //setup top view
     [self addSubview:self.topView];
 
@@ -186,8 +198,11 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     //setup displayView
     [self addSubview:self.displayView];
     
-    //setup volumeView
-    [self addSubview:self.volumeView];
+    //setup completionView
+    [self addSubview:self.completedView];
+    
+    [self.completedView addSubview:self.completedButton];
+    [self.completedView addSubview:self.completedLabel];
 }
 
 - (void)setupAVPlayer {
@@ -207,6 +222,11 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         make.edges.mas_equalTo(UIEdgeInsetsZero);
     }];
     
+    //------------ 占位图
+    [self.placeholderImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.mas_equalTo(UIEdgeInsetsZero);
+    }];
+    
     //------------ 顶部
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.top.mas_offset(0);
@@ -214,9 +234,9 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     }];
     
     [self.backButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.topView.mas_leading).offset(4);
+        make.leading.equalTo(self.topView.mas_leading).offset(5);
         make.top.equalTo(self.topView.mas_top).offset(3);
-        make.width.height.mas_equalTo(80);
+        make.width.height.mas_equalTo(28);
     }];
 
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -237,7 +257,6 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         make.width.height.mas_equalTo(0);
     }];
     
-    self.closeButton.hidden = YES;
     [self.closeButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.equalTo(self);
         make.top.equalTo(self.mas_top).offset(0);
@@ -269,16 +288,14 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     }];
     
     [self.videoProgressSlider mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.currentTimeLabel.mas_trailing).offset(4);
-        make.trailing.equalTo(self.totalTimeLabel.mas_leading).offset(-4);
-        make.centerY.equalTo(self.playButton.mas_centerY).offset(-1);
-        make.height.mas_offset(30);
+        make.leading.trailing.equalTo(self.loadedProgressView);
+        make.centerY.equalTo(self.loadedProgressView);
     }];
     
     [self.totalTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.equalTo(self.fullScreenButton.mas_leading).offset(3);
         make.centerY.equalTo(self.playButton.mas_centerY);
-        make.width.mas_equalTo(42);
+        make.width.mas_equalTo(42).priority(700);
     }];
 
     [self.fullScreenButton mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -317,47 +334,67 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         make.width.height.mas_offset(156);
     }];
     
-    [self.volumeView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.centerY.equalTo(self);
-        make.width.height.mas_offset(156);
+    //------------ 完成后
+    [self.completedView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.mas_equalTo(UIEdgeInsetsZero);
     }];
-
+    
+    [self.completedButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(self);
+        make.centerY.equalTo(self).offset(-20);
+        make.width.height.mas_offset(50);
+    }];
+    
+    [self.completedLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.mas_centerX);
+        make.top.mas_equalTo(self.completedButton.mas_bottom).offset(4);
+        make.width.mas_equalTo(120);
+        make.height.mas_equalTo(30);
+    }];
 }
 
 //初始化数据
 - (void)setupData {
+    [self.placeholderImageView sd_setImageWithURL:_videoItem.placeholderImageURL placeholderImage:WYPlayerBundleImageNamed(@"WYPlayer_player_discover_moment@2x.jpg")];
+    
     self.titleLabel.text = _videoItem.title;
     self.loadedProgressView.progress = 0;
     self.videoProgressSlider.value = 0;
     self.currentTimeLabel.text = @"00:00";
     self.totalTimeLabel.text = @"00:00";
+    self.completedLabel.text = @"重新播放";
+    self.panSeekTime = 0;
     
+    self.closeButton.hidden = YES;
+    self.completedView.hidden = YES;
+    self.placeholderImageView.alpha = 1.0f;
+
     self.dragged = NO;
     self.enterBackground = NO;
     self.lockScreen = NO;
     self.fullScreen = NO;
-    self.playDidEnd = NO;
     self.showCtrlView = NO;
+    self.bottomVideo = NO;
     
     //设置通知
     [self setupNotificationCenter];
     
     [self setupGestureRecognizer];
+    
+    [self updateViewConstraints];
 }
 
-#pragma mark - Reset data
-
 // 重置数据
-- (void)resetPlayData {
+- (void)setupPlayData {
     
     if (self.videoItem.videoURL) {
         self.playerItem = [AVPlayerItem playerItemWithURL:_videoItem.videoURL];
         //重置播放模型
         [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
-        
+
         //播放进度监听
         [self setupMonitoringPlayback];
-        
+
         if ([self.videoItem.videoURL.scheme isEqualToString:@"file"]) {
             self.playerStatus = WYPlayerStatusPlaying;
         }else {
@@ -385,39 +422,26 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 }
 
 - (void)setupGestureRecognizer {
-    UITapGestureRecognizer *singleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchSingleTapAction:)];
-    singleTapGesture.delegate = self;
-    singleTapGesture.numberOfTouchesRequired = 1;
-    singleTapGesture.numberOfTapsRequired = 1;
-    singleTapGesture.delegate = self;
-    [self.playerView addGestureRecognizer:singleTapGesture];
-    
-    UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchDoubleTapAction:)];
-    doubleTapGesture.delegate = self;
-    doubleTapGesture.numberOfTouchesRequired = 1; //一个手指
-    doubleTapGesture.numberOfTapsRequired = 2;      //两次
-    doubleTapGesture.delegate = self;
-    [self.playerView addGestureRecognizer:doubleTapGesture];
+    [self.playerView addGestureRecognizer:self.singleTapGesture];
+    [self.playerView addGestureRecognizer:self.doubleTapGesture];
 
     // 解决点击当前view时候响应其他控件事件
-    [singleTapGesture setDelaysTouchesBegan:YES];
-    [doubleTapGesture setDelaysTouchesBegan:YES];
+    [self.singleTapGesture setDelaysTouchesBegan:YES];
+    [self.doubleTapGesture setDelaysTouchesBegan:YES];
     // 双击失败响应单击事件
-    [singleTapGesture requireGestureRecognizerToFail:doubleTapGesture];
+    [self.singleTapGesture requireGestureRecognizerToFail:self.doubleTapGesture];
 
     //平移：声音、亮度、播放进度
-    UIPanGestureRecognizer *panGesetureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchPanAction:)];
-    panGesetureRecognizer.maximumNumberOfTouches = 1;
-    panGesetureRecognizer.delaysTouchesBegan = YES;
-    panGesetureRecognizer.delaysTouchesEnded = YES;
-    panGesetureRecognizer.cancelsTouchesInView = YES;
-    [self.playerView addGestureRecognizer:panGesetureRecognizer];
-
+    [self.playerView addGestureRecognizer:self.panGesetureRecognizer];
 }
 
 #pragma mark - NSNotificationCenter
 
 - (void)setupNotificationCenter {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     //进入前台
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appEnterForegroundNotification)
@@ -474,7 +498,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
                 [self updateViewConstraints];
 
                 if (self.isBottomVideo) {
-                    [self updatePlayerViewToBottomView];
+                    [self updatePlayerViewToBottomView:NO];
                 }
             }
         }
@@ -503,13 +527,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 - (void)videoPlayToEndTimeNotification:(NSNotification *)notification {
     self.playerStatus = WYPlayerStatusStopped;
     
-    if (self.isFullScreen) {
-        self.playDidEnd = NO;
-    }else {
-        if (!self.isDragged) {
-            self.playDidEnd = YES;
-            [self hideControlView];
-        }
+    if (!self.isDragged) {
+        [self hideControlView];
+    }
+    
+    if (self.isBottomVideo) {
+        [self removeFromSuperview];
+    }
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(wy_videoPlayerToEndTime:)]) {
+        [self.delegate wy_videoPlayerToEndTime:self];
     }
 }
 
@@ -520,6 +547,10 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         if ([keyPath isEqualToString:@"status"]) {
             if (self.playerItem.status == AVPlayerItemStatusReadyToPlay) {
                 [self play];
+                
+                if (self.panSeekTime) {
+                    [self seekToTime:self.panSeekTime completionHandler:nil];
+                }
             }else if (self.playerItem.status == AVPlayerItemStatusFailed) {
                 self.playerStatus = WYPlayerStatusFailed;
             }
@@ -551,12 +582,10 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         return NO;
     }
 
-//    if (!self.isFullScreen) {
-//        return NO;
-//    }
-//    if (self.playerStatus != WYPlayerStatusPlaying) {
-//        return NO;
-//    }
+    //非横屏状态，不能改变进度条、声音、亮度
+    if (!self.isFullScreen && [gestureRecognizer isEqual:self.panGesetureRecognizer]) {
+        return NO;
+    }
     
     return YES;
 }
@@ -572,17 +601,15 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     
     [self updatePlayerViewToFatherView];
     
+    [self updateResolutionView];
+
     [self setupData];
 
     if (videoItem.autoPlay) {
-        [self resetPlayData];
+        [self setupPlayData];
     }
-}
-
-- (void)resetPlayer {
-    [self setupData];
-
-    [self resetPlayData];
+    
+    [self showControlView];
 }
 
 - (void)pause {
@@ -599,7 +626,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     if (self.playerItem) {
         [self.player play];
     }else {
-        [self resetPlayData];
+        [self setupPlayData];
     }
 }
 
@@ -678,6 +705,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
                 completionHandler(finished);
             }
             weakSelf.dragged = NO;
+            weakSelf.panSeekTime = 0;
             weakSelf.playButton.selected = YES;
             [weakSelf playerAutoFadeOutControlView];
         }];
@@ -685,6 +713,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 }
 
 - (void)updatePlayerViewToFatherView {
+    self.transform = CGAffineTransformIdentity;
     if (_videoItem.indexPath) {
         [self removeFromSuperview];
         
@@ -719,17 +748,13 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 
 - (void)updateViewConstraints {
     if (self.isFullScreen) {
-        if (_playerViewType == WYPlayerViewTypeCellList ||
-            _playerViewType == WYPlayerViewTypeCellListNoTitle) {
-            self.titleLabel.hidden = NO;
-            
-            [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.leading.equalTo(self.topView.mas_leading).offset(5);
-                make.top.equalTo(self.topView.mas_top).offset(3);
-                make.width.height.mas_equalTo(32);
-            }];
-        }
-
+        [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.topView.mas_leading).offset(5);
+            make.top.equalTo(self.topView.mas_top).offset(20);
+            make.width.height.mas_equalTo(28);
+        }];
+        
+        self.titleLabel.hidden = NO;
         self.titleLabel.numberOfLines = 1;
         [self.titleLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.equalTo(self.backButton.mas_trailing).offset(5);
@@ -761,24 +786,25 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.width.height.mas_offset(156);
         }];
         
-        [self.volumeView mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.centerY.equalTo(self);
-            make.width.height.mas_offset(156);
-        }];
-
         self.resolutionButton.hidden = NO;
         self.fullScreenButton.hidden = YES;
         self.lockButton.hidden = NO;
 
     }else {
-        if (_playerViewType == WYPlayerViewTypeCellList) {
+        if (_playerViewType == WYPlayerViewTypeDefault) {
+            [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.equalTo(self.topView.mas_leading).offset(5);
+                make.top.equalTo(self.topView.mas_top).offset(3);
+                make.width.height.mas_equalTo(28);
+            }];
+        }else if (_playerViewType == WYPlayerViewTypeCellList) {
             self.titleLabel.hidden = NO;
             
             [self.backButton mas_remakeConstraints:^(MASConstraintMaker *make) {
                 make.leading.equalTo(self.topView.mas_leading).offset(5);
                 make.top.equalTo(self.topView.mas_top).offset(3);
                 make.width.mas_equalTo(0);
-                make.height.mas_equalTo(32);
+                make.height.mas_equalTo(28);
             }];
         }else if (_playerViewType == WYPlayerViewTypeCellListNoTitle) {
             self.titleLabel.hidden = YES;
@@ -787,7 +813,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
                 make.leading.equalTo(self.topView.mas_leading).offset(5);
                 make.top.equalTo(self.topView.mas_top).offset(3);
                 make.width.mas_equalTo(0);
-                make.height.mas_equalTo(32);
+                make.height.mas_equalTo(28);
             }];
         }
 
@@ -816,44 +842,39 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.width.height.mas_equalTo(30);
         }];
         
-        [self.displayView mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.centerY.equalTo(self);
-            make.width.height.mas_offset(156);
-        }];
-
-        [self.volumeView mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.centerY.equalTo(self);
-            make.width.height.mas_offset(156);
-        }];
-
         self.resolutionButton.hidden = YES;
         self.fullScreenButton.hidden = NO;
         self.lockButton.hidden = YES;
 
-      
     }
     
     [self layoutIfNeeded];
 }
 
-- (void)updatePlayerViewToBottomView {
-    if (self.isBottomVideo) {
+//orientation: 主要是为了在小屏状态下，横屏后全屏；然后竖屏后需要再小屏显示
+- (void)updatePlayerViewToBottomView:(BOOL)orientation {
+    if (self.isBottomVideo && orientation) {
         return;
     }
-    if (!(self.playerStatus == WYPlayerStatusPlaying || self.playerStatus == WYPlayerStatusBuffering)) {
+    
+    //在暂停、播放完毕、播放失败时，不显示在底部
+    if (self.playerStatus == WYPlayerStatusPause ||
+        self.playerStatus == WYPlayerStatusFailed ||
+        self.playerStatus == WYPlayerStatusStopped) {
+        [self removeFromSuperview];
         return;
     }
     
     self.bottomVideo = YES;
     self.closeButton.hidden = NO;
-    
+
     self.topView.alpha = 0;
     self.bottomView.alpha = 0;
     self.lockButton.alpha = 0;
     self.showCtrlView = NO;
     [self playerCancelAutoFadeOutControlView];
   
-    
+    [self removeFromSuperview];
     [[UIApplication sharedApplication].keyWindow addSubview:self];
     
     CGFloat width = [[UIScreen mainScreen] bounds].size.width * 0.5 - 20;
@@ -865,15 +886,9 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         make.trailing.mas_equalTo(width);
     }];
     
-    [UIView animateWithDuration:3.5 animations:^{
-        [self mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.width.mas_equalTo(width);
-            make.height.equalTo(self.mas_width).multipliedBy(heightBy);
-            make.bottom.mas_equalTo(0);
-            make.trailing.mas_equalTo(0);
-        }];
+    [UIView animateWithDuration:0.2 animations:^{
+        self.transform = CGAffineTransformMakeTranslation(-width, 0);
     }];
-    
 }
 
 - (void)updatePlayerViewToScrollCellView {
@@ -896,13 +911,12 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         NSArray *visibleCells = tableView.visibleCells;
         //在复用列表中，且正在播放
         if (![visibleCells containsObject:cell]) {
-            [self updatePlayerViewToBottomView];
+            [self updatePlayerViewToBottomView:YES];
         }else {
             if (self.bottomVideo) {
                 [self updatePlayerViewToScrollCellView];
             }
         }
-        
         
     }else if ([self.scrollView isKindOfClass:[UICollectionView class]]) {
         UICollectionView *collectionView = (UICollectionView *)self.scrollView;
@@ -911,7 +925,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         NSArray *visibleCells = collectionView.visibleCells;
         //在复用列表中，且正在播放
         if (![visibleCells containsObject:cell]) {
-            [self updatePlayerViewToBottomView];
+            [self updatePlayerViewToBottomView:YES];
         }else {
             if (self.bottomVideo) {
                 [self updatePlayerViewToScrollCellView];
@@ -940,10 +954,20 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 //隐藏控制视图
 - (void)hideControlView {
     [self playerCancelAutoFadeOutControlView];
+    
+    //在横屏状态下隐藏或显示状态栏
+    if (self.isFullScreen) {
+        [WYPlayerManager sharedInstance].statusBarHidden = YES;
+        [UIView animateWithDuration:0.25 animations:^{
+            [[WYPlayerManager topViewController] setNeedsStatusBarAppearanceUpdate];
+        }];
+    }
+    
     [UIView animateWithDuration:WYPlayerShowControlViewDuration animations:^{
         self.topView.alpha = 0;
         self.bottomView.alpha = 0;
         self.lockButton.alpha = 0;
+        self.resolutionView.hidden = YES;
     } completion:^(BOOL finished) {
         self.showCtrlView = NO;
     }];
@@ -952,6 +976,15 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 //显示控制视图
 - (void)showControlView {
     [self playerCancelAutoFadeOutControlView];
+    
+    //在横屏状态下隐藏或显示状态栏
+    if (self.isFullScreen) {
+        [WYPlayerManager sharedInstance].statusBarHidden = NO;
+        [UIView animateWithDuration:0.25 animations:^{
+            [[WYPlayerManager topViewController] setNeedsStatusBarAppearanceUpdate];
+        }];
+    }
+    
     [UIView animateWithDuration:WYPlayerShowControlViewDuration animations:^{
         if (self.lockScreen) {
             self.topView.alpha = 0;
@@ -971,7 +1004,6 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 - (void)updateChangedSeektime:(CGFloat)value {
     self.panSeekTime += value / 200;
     
-//    CMTime totalTime = self.playerItem.duration;
     CGFloat totalTime = self.playerItem.duration.value / self.playerItem.duration.timescale;
     if (self.panSeekTime > totalTime) {
         self.panSeekTime = totalTime;
@@ -985,13 +1017,50 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 }
 
 - (void)updateChangedVolume:(CGFloat)value {
-    self.volumeView.hidden = NO;
     self.volumeViewSlider.value -= value / 10000;
 }
 
 - (void)updateChangedLight:(CGFloat)value {
     [UIScreen mainScreen].brightness -= value / 10000;
 
+}
+
+- (void)updateResolutionView {
+    if (_videoItem.resolutionDic.count) {
+        //设置分辨率按钮标题；默认高清
+        for (NSString *key in [_videoItem.resolutionDic allKeys]) {
+            if ([_videoItem.resolutionDic[key] isEqualToString:_videoItem.videoURL.absoluteString]) {
+                [self.resolutionButton setTitle:key forState:UIControlStateNormal];
+                break;
+            }
+        }
+        
+        self.resolutionView.hidden = YES;
+        [self addSubview:self.resolutionView];
+        
+        [self.resolutionView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.resolutionButton);
+            make.bottom.equalTo(self.resolutionButton.mas_top).offset(2);
+            make.width.mas_equalTo(50);
+            make.height.mas_equalTo(_videoItem.resolutionDic.count * 30.0);
+        }];
+        
+        NSArray *titles = [_videoItem.resolutionDic allKeys];
+        for (NSInteger i = 0; i < titles.count; i++) {
+            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+            [button setFrame:CGRectMake(0, 30.0 * i, 50, 30)];
+            [button setTitle:titles[i] forState:UIControlStateNormal];
+            [button addTarget:self action:@selector(onTouchChangedResolution:) forControlEvents:UIControlEventTouchUpInside];
+
+            [button.titleLabel setFont:[UIFont systemFontOfSize:12]];
+            button.layer.borderColor = [UIColor whiteColor].CGColor;
+            button.layer.borderWidth = 0.5;
+            
+            [self.resolutionView addSubview:button];
+        }
+    }else {
+        [self.resolutionButton setEnabled:NO];
+    }
 }
 
 #pragma mark - InterfaceOrientation
@@ -1068,7 +1137,17 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 
 //横屏点击返回键
 - (void)onTouchGotobackAction:(id)sender {
-    [self onTouchFullScreenAction:nil];
+    if (self.isFullScreen) {
+        [self onTouchFullScreenAction:nil];
+    }else {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(wy_dismissViewControllerAnimated:completion:)]) {
+            [self.delegate wy_dismissViewControllerAnimated:YES completion:nil];
+        }
+    }
+}
+
+- (void)onTouchResolutionAction:(id)sender {
+    self.resolutionView.hidden = !self.resolutionView.hidden;
 }
 
 - (void)onTouchLockScreenAction:(id)sender {
@@ -1115,15 +1194,20 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     
 }
 
+- (void)onTouchReplayAction:(id)sender {
+    self.completedView.hidden = YES;
+    
+    [self setupPlayData];
+}
+
 - (void)onTouchCloseVideoAction:(id)sender {
     [self pause];
     
-    [self updatePlayerViewToScrollCellView];
+    [self removeFromSuperview];
 }
 
 - (void)onTouchSliderBegan:(id)sender {
     self.dragged = YES;
-    self.playDidEnd = NO;
 }
 
 - (void)onTouchSliderValueChanged:(id)sender {
@@ -1149,13 +1233,15 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 }
 
 - (void)onTouchSingleTapAction:(UITapGestureRecognizer *)gestureRecognizer {
-    if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        [self playerShowOrHideControlView];
-    }
+    [self playerShowOrHideControlView];
 }
 
 - (void)onTouchDoubleTapAction:(UITapGestureRecognizer *)gestureRecognizer {
-    [self onTouchFullScreenAction:nil];
+    if (self.playerStatus == WYPlayerStatusPlaying) {
+        [self pause];
+    }else {
+        [self play];
+    }
 }
 
 - (void)onTouchPanAction:(UIPanGestureRecognizer *)gestureRecognizer {
@@ -1208,7 +1294,6 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             switch (self.panChangedType) {
                 case WYPlayerPanChangedSeektime:
                     [self seekToTime:self.panSeekTime completionHandler:nil];
-                    self.panSeekTime = 0;
                     self.percentageLabel.alpha = 0;
 
                     break;
@@ -1225,6 +1310,23 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     
 }
 
+- (void)onTouchChangedResolution:(id)sender {
+    UIButton *button = sender;
+    NSURL *url = [NSURL URLWithString:_videoItem.resolutionDic[button.titleLabel.text]];
+    
+    if (![_videoItem.videoURL isEqual:url]) {
+        self.videoItem.videoURL = url;
+        [self.resolutionButton setTitle:button.titleLabel.text forState:UIControlStateNormal];
+        
+        NSInteger currentTime = (NSInteger)CMTimeGetSeconds([self.player currentTime]);
+        self.panSeekTime = currentTime;
+        
+        [self setupPlayData];
+    }
+    
+    self.resolutionView.hidden = YES;
+}
+
 #pragma mark - Setter
 
 - (void)setPlayerStatus:(WYPlayerStatus)playerStatus {
@@ -1234,6 +1336,19 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         [self.activityView startAnimating];
     }else {
         [self.activityView stopAnimating];
+    }
+    
+    if (playerStatus == WYPlayerStatusPlaying || playerStatus == WYPlayerStatusBuffering) {
+        [UIView animateWithDuration:0.5 animations:^{
+            self.placeholderImageView.alpha = 0.0;
+        }];
+    }
+    
+    if (playerStatus == WYPlayerStatusFailed || playerStatus == WYPlayerStatusStopped) {
+        if (playerStatus == WYPlayerStatusFailed) {
+            self.completedLabel.text = @"播放失败，重新播放";
+        }
+        self.completedView.hidden = NO;
     }
 }
 
@@ -1249,7 +1364,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.leading.equalTo(self.topView.mas_leading).offset(5);
             make.top.equalTo(self.topView.mas_top).offset(3);
             make.width.mas_equalTo(0);
-            make.height.mas_equalTo(32);
+            make.height.mas_equalTo(28);
         }];
 
     }else if (playerViewType == WYPlayerViewTypeCellListNoTitle){
@@ -1259,7 +1374,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
             make.leading.equalTo(self.topView.mas_leading).offset(5);
             make.top.equalTo(self.topView.mas_top).offset(3);
             make.width.mas_equalTo(0);
-            make.height.mas_equalTo(32);
+            make.height.mas_equalTo(28);
         }];
     }
 }
@@ -1305,12 +1420,10 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 
 - (void)setFullScreen:(BOOL)fullScreen {
     _fullScreen = fullScreen;
-    self.videoItem.statusBarHidden = fullScreen;
     
-    [UIView animateWithDuration:0.25 animations:^{
-        [self.videoItem.visibleViewController setNeedsStatusBarAppearanceUpdate];
-    }];
-    
+    [WYPlayerManager sharedInstance].isLandscape = fullScreen;
+    [[WYPlayerManager topViewController] setNeedsStatusBarAppearanceUpdate];
+
     self.fullScreenButton.selected = fullScreen;
 }
 
@@ -1322,6 +1435,14 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         _playerView.backgroundColor = [UIColor blackColor];
     }
     return _playerView;
+}
+
+- (UIImageView *)placeholderImageView {
+    if (_placeholderImageView == nil) {
+        _placeholderImageView = [[UIImageView alloc] init];
+        _placeholderImageView.userInteractionEnabled = YES;
+    }
+    return _placeholderImageView;
 }
 
 - (UIView *)topView {
@@ -1336,6 +1457,22 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         _bottomView = [[UIView alloc] init];
     }
     return _bottomView;
+}
+
+- (UIView *)completedView {
+    if (_completedView == nil) {
+        _completedView = [[UIView alloc] init];
+        _completedView.backgroundColor = WYPlayerColorWithRGBA(16, 19, 25, 0.86);
+    }
+    return _completedView;
+}
+
+- (UIView *)resolutionView {
+    if (_resolutionView == nil) {
+        _resolutionView = [[UIView alloc] init];
+        _resolutionView.backgroundColor = WYPlayerColorWithRGBA(0, 0, 0, 0.76);
+    }
+    return _resolutionView;
 }
 
 - (UIButton *)backButton {
@@ -1353,7 +1490,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
         _resolutionButton.titleLabel.font = [UIFont systemFontOfSize:12.f];
         [_resolutionButton setTitle:@"高清" forState:UIControlStateNormal];
         [_resolutionButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//        [_resolutionButton addTarget:self action:@selector(onTouchGobackAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_resolutionButton addTarget:self action:@selector(onTouchResolutionAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _resolutionButton;
 }
@@ -1415,6 +1552,15 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     return _moreButton;
 }
 
+- (UIButton *)completedButton {
+    if (_completedButton == nil) {
+        _completedButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_completedButton setImage:WYPlayerBundleImageNamed(@"WYPlayer_player_ctrl_icon_replay") forState:UIControlStateNormal];
+        [_completedButton addTarget:self action:@selector(onTouchReplayAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _completedButton;
+}
+
 - (UILabel *)titleLabel {
     if (_titleLabel == nil) {
         _titleLabel = [[UILabel alloc] init];
@@ -1455,6 +1601,16 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     return _percentageLabel;
 }
 
+- (UILabel *)completedLabel {
+    if (_completedLabel == nil) {
+        _completedLabel = [[UILabel alloc] init];
+        _completedLabel.textColor = [UIColor whiteColor];
+        _completedLabel.font = [UIFont systemFontOfSize:15.f];
+        _completedLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    return _completedLabel;
+}
+
 - (UIProgressView *)loadedProgressView {
     if (_loadedProgressView == nil) {
         _loadedProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
@@ -1486,28 +1642,60 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
     return _activityView;
 }
 
-- (WYControlDisplayView *)displayView {
+- (WYPlayerBrightnessView *)displayView {
     if (_displayView == nil) {
-        _displayView = [[WYControlDisplayView alloc] initWithFrame:CGRectMake(100, 100, 156, 156)];;
+        _displayView = [[WYPlayerBrightnessView alloc] initWithFrame:CGRectMake(0, 0, 156, 156)];
     }
     return _displayView;
 }
 
-- (MPVolumeView *)volumeView {
-    if (_volumeView == nil) {
-        _volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(0, 0, 156, 156)];
-//        _volumeView.showsRouteButton = NO;
-        _volumeView.showsVolumeSlider = YES;
-        
-        [[_volumeView subviews] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+- (UISlider *)volumeViewSlider {
+    if (_volumeViewSlider == nil) {
+        MPVolumeView *volumeView = [[MPVolumeView alloc] init];
+        [[volumeView subviews] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj isKindOfClass:[UISlider class]]) {
-                self.volumeViewSlider = obj;
+                _volumeViewSlider = obj;
                 *stop = YES;
             }
         }];
     }
     
-    return _volumeView;
+    return _volumeViewSlider;
+}
+
+- (UITapGestureRecognizer *)singleTapGesture {
+    if (_singleTapGesture == nil) {
+        _singleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchSingleTapAction:)];
+        _singleTapGesture.numberOfTouchesRequired = 1;
+        _singleTapGesture.numberOfTapsRequired = 1;
+        _singleTapGesture.delegate = self;
+    }
+    
+    return _singleTapGesture;
+}
+
+- (UITapGestureRecognizer *)doubleTapGesture {
+    if (_doubleTapGesture == nil) {
+        _doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchDoubleTapAction:)];
+        _doubleTapGesture.numberOfTouchesRequired = 1; //一个手指
+        _doubleTapGesture.numberOfTapsRequired = 2;      //两次
+        _doubleTapGesture.delegate = self;
+    }
+
+    return _doubleTapGesture;
+}
+
+- (UIPanGestureRecognizer *)panGesetureRecognizer {
+    if (_panGesetureRecognizer == nil) {
+        _panGesetureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onTouchPanAction:)];
+        _panGesetureRecognizer.maximumNumberOfTouches = 1;
+        _panGesetureRecognizer.delaysTouchesBegan = YES;
+        _panGesetureRecognizer.delaysTouchesEnded = YES;
+        _panGesetureRecognizer.cancelsTouchesInView = YES;
+        _panGesetureRecognizer.delegate = self;
+    }
+
+    return _panGesetureRecognizer;
 }
 
 @end
@@ -1538,7 +1726,7 @@ typedef NS_ENUM(NSInteger, WYPlayerPanChanged) {
 }
 
 //- (UIStatusBarStyle)preferredStatusBarStyle {
-//    return UIStatusBarStyleDefault; // your own style
+//    return UIStatusBarStyleLightContent; // your own style
 //}
 //
 //- (BOOL)prefersStatusBarHidden {

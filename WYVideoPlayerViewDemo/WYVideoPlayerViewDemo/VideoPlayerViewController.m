@@ -10,7 +10,7 @@
 #import "WYVideoPlayerView.h"
 #import <Masonry.h>
 
-@interface VideoPlayerViewController ()
+@interface VideoPlayerViewController ()<WYVideoPlayerViewDelegate>
 
 @property (nonatomic, strong) UIView *videoPlayerView;          //播放器容器
 @property (nonatomic, strong) WYVideoPlayerView *playerView;    //播放器视图
@@ -76,23 +76,25 @@
 - (WYVideoPlayerView *)playerView {
     if (_playerView == nil) {
         _playerView = [[WYVideoPlayerView alloc] init];
+        _playerView.delegate = self;
+        _playerView.playerViewType = WYPlayerViewTypeDefault;
     }
     
     return _playerView;
 }
 
-//// 返回值要必须为NO
-//- (BOOL)shouldAutorotate {
-//    return NO;
-//}
-
 - (UIStatusBarStyle)preferredStatusBarStyle {
-    return UIStatusBarStyleLightContent;
+    return [WYPlayerManager sharedInstance].isLandscape ? UIStatusBarStyleLightContent : UIStatusBarStyleDefault;
 }
 
 - (BOOL)prefersStatusBarHidden {
-    return YES;
+    return [WYPlayerManager sharedInstance].isLandscape ? [WYPlayerManager sharedInstance].statusBarHidden : YES;
 }
 
+#pragma mark - WYVideoPlayerViewDelegate
+
+- (void)wy_dismissViewControllerAnimated:(BOOL)animated completion:(void (^)(void))completion {
+    [self.navigationController popViewControllerAnimated:animated];
+}
 
 @end

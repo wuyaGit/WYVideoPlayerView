@@ -1,19 +1,19 @@
 //
-//  WYControlDisplayView.m
+//  WYPlayerBrightnessView.m
 //  WYVideoPlayerViewDemo
 //
 //  Created by Yangguangliang on 2018/1/2.
 //  Copyright © 2018年 YANGGL. All rights reserved.
 //
 
-#import "WYControlDisplayView.h"
+#import "WYPlayerBrightnessView.h"
 
-@interface WYControlDisplayView()
+@interface WYPlayerBrightnessView()
 
 @property (nonatomic, strong) NSMutableArray *progressArray;
 @end
 
-@implementation WYControlDisplayView
+@implementation WYPlayerBrightnessView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -48,8 +48,8 @@
     [self addSubview:backImageView];
     
     //
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 6, self.bounds.size.width, 30)];
-    titleLabel.font = [UIFont boldSystemFontOfSize:20];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 4, self.bounds.size.width, 30)];
+    titleLabel.font = [UIFont boldSystemFontOfSize:15];
     titleLabel.textColor = [UIColor colorWithRed:0.25 green:0.22 blue:0.21 alpha:1];
     titleLabel.textAlignment = NSTextAlignmentCenter;
     titleLabel.text = @"亮度";
@@ -85,7 +85,6 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
     CGFloat brightess = [change[@"new"] floatValue];
     
-    NSLog(@"%@ %f", change[@"new"], brightess);
     [self displayViewWillAppear];
     [self updateProgeressView:brightess];
 }
@@ -96,7 +95,7 @@
     if (self.alpha == 0.0) {
         self.alpha = 1.0;
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self displayViewWillDisappear];
         });
     }

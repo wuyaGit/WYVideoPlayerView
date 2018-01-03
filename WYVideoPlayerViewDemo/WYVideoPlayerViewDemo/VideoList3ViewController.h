@@ -2,12 +2,12 @@
 //  VideoList3ViewController.h
 //  WYVideoPlayerViewDemo
 //
-//  Created by Yangguangliang on 2017/12/30.
-//  Copyright © 2017年 YANGGL. All rights reserved.
+//  Created by YANGGL on 2018/1/3.
+//  Copyright © 2018年 YANGGL. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface VideoList3ViewController : UITableViewController
+@interface VideoList3ViewController : UIViewController
 
 @end
